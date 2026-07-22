@@ -3,12 +3,8 @@
  * DisWebTienda - Frontend
  */
 
-// ── Configuración de Supabase (deberás reemplazar estos valores) ──
-const SUPABASE_URL = "https://vnijbntopryzqocipywp.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Reemplazar con tu anon key real
-
-// ── URL del backend ───────────────────────────────────
-const BACKEND_URL = "http://localhost:3000";
+// ── Configuración global ──────────────────────────────
+// Se espera que config.js se cargue antes que este archivo
 
 // ── Verificar si hay sesión activa al cargar ──────────
 document.addEventListener("DOMContentLoaded", () => {
@@ -49,7 +45,7 @@ function configurarFormularioLogin() {
 
     try {
       // Llamar al backend para login
-      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      const response = await fetch(`${CONFIG.BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

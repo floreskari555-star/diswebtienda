@@ -4,7 +4,7 @@
  */
 
 // ── Configuración ────────────────────────────────────
-const API_URL = "http://localhost:3000";
+const API_URL = "https://diswebtienda.onrender.com";
 
 // ── Datos de ejemplo (catálogo simulado) ──────────────
 const catalogoEjemplo = [
