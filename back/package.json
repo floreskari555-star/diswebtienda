@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "Backend webTienda",
   "main": "src/server.js",
-  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node src/server.js",
-	"dev": "nodemon src/server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +28,7 @@
     "@supabase/supabase-js": "^2.110.8",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
     "express": "^5.2.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
