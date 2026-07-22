@@ -1,0 +1,39 @@
+{
+  "name": "webtienda",
+  "version": "1.0.0",
+  "description": "Backend webTienda",
+  "main": "src/server.js",
+  
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "node src/server.js",
+	"dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/floreskari555-star/diswebtienda.git"
+  },
+  "keywords": [
+    "backend",
+    "webtienda",
+    "Karina",
+    "Flores"
+  ],
+  "author": "Karina Flores",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/floreskari555-star/diswebtienda/issues"
+  },
+  "homepage": "https://github.com/floreskari555-star/diswebtienda#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.8",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
