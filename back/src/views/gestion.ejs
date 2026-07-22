@@ -90,8 +90,10 @@
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Email</th>
+                    <th>Apellido</th>
+                    <th>Correo</th>
                     <th>Teléfono</th>
+                    <th>Dirección</th>
                     <th>Rol</th>
                     <th>Registro</th>
                     <th>Acciones</th>
@@ -100,14 +102,16 @@
                 <tbody>
                   <% usuarios.forEach(function(usuario) { %>
                     <tr>
-                      <td><%= usuario.nombre %> <%= usuario.apellido %></td>
+                      <td><%= usuario.nombre %></td>
+                      <td><%= usuario.apellido %></td>
                       <td><%= usuario.correo %></td>
                       <td><%= usuario.telefono || '-' %></td>
+                      <td><%= usuario.direccion || '-' %></td>
                       <td>
                         <% if (usuario.rol === 'super') { %>
                           <span class="badge bg-danger">Super</span>
                         <% } else if (usuario.rol === 'admin') { %>
-                          <span class="badge bg-warning">Admin</span>
+                          <span class="badge bg-warning text-dark">Admin</span>
                         <% } else if (usuario.rol === 'proveedor') { %>
                           <span class="badge bg-info">Proveedor</span>
                         <% } else if (usuario.rol === 'reporte') { %>
@@ -118,12 +122,20 @@
                       </td>
                       <td><%= new Date(usuario.creado_al).toLocaleDateString('es-PE') %></td>
                       <td>
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal"
+                          data-id="<%= usuario.id %>"
+                          data-nombre="<%= usuario.nombre %>"
+                          data-apellido="<%= usuario.apellido %>"
+                          data-correo="<%= usuario.correo %>"
+                          data-telefono="<%= usuario.telefono || '' %>"
+                          data-direccion="<%= usuario.direccion || '' %>"
+                          data-rol="<%= usuario.rol %>">
+                          Editar
+                        </button>
                         <% if (usuario.rol !== 'super') { %>
                           <form action="/gestion/eliminar/<%= usuario.id %>" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?')">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                           </form>
-                        <% } else { %>
-                          <span class="text-muted">-</span>
                         <% } %>
                       </td>
                     </tr>
@@ -137,6 +149,85 @@
     </div>
   </div>
 
+  <!-- Modal de Edición -->
+  <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editarForm" method="POST">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title" id="editarModalLabel">Editar Usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editId" name="id">
+            
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="editNombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Apellido *</label>
+              <input type="text" class="form-control" id="editApellido" name="apellido" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-control" id="editCorreo" name="correo" disabled>
+              <small class="text-muted">El correo no se puede cambiar</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" id="editTelefono" name="telefono">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Dirección</label>
+              <input type="text" class="form-control" id="editDireccion" name="direccion">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Rol *</label>
+              <select class="form-select" id="editRol" name="rol" required>
+                <option value="cliente">Cliente</option>
+                <option value="proveedor">Proveedor</option>
+                <option value="admin">Admin</option>
+                <option value="reporte">Reporte</option>
+                <option value="super">Super</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Cuando se hace clic en "Editar", llenar el modal con los datos del usuario
+    const editarModal = document.getElementById('editarModal');
+    editarModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const id = button.getAttribute('data-id');
+      const nombre = button.getAttribute('data-nombre');
+      const apellido = button.getAttribute('data-apellido');
+      const correo = button.getAttribute('data-correo');
+      const telefono = button.getAttribute('data-telefono');
+      const direccion = button.getAttribute('data-direccion');
+      const rol = button.getAttribute('data-rol');
+
+      document.getElementById('editId').value = id;
+      document.getElementById('editNombre').value = nombre;
+      document.getElementById('editApellido').value = apellido;
+      document.getElementById('editCorreo').value = correo;
+      document.getElementById('editTelefono').value = telefono;
+      document.getElementById('editDireccion').value = direccion;
+      document.getElementById('editRol').value = rol;
+
+      // Actualizar la acción del formulario
+      document.getElementById('editarForm').action = '/gestion/actualizar/' + id;
+    });
+  </script>
 </body>
 </html>

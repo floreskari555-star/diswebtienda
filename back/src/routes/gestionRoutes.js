@@ -79,6 +79,52 @@ router.post("/gestion/registro", async (req, res) => {
   }
 });
 
+// ── Actualizar usuario desde el formulario ───────────
+router.post("/gestion/actualizar/:id", async (req, res) => {
+  console.log("✏️ [GESTION] Actualizar usuario:", req.params.id);
+
+  const { id } = req.params;
+  const { nombre, apellido, telefono, direccion, rol } = req.body;
+
+  try {
+    // Verificar que el usuario existe
+    const { data: existe } = await supabaseAdmin
+      .from("perfiles")
+      .select("id")
+      .eq("id", id)
+      .single();
+
+    if (!existe) {
+      return res.redirect("/gestion?error=" + encodeURIComponent("Usuario no encontrado"));
+    }
+
+    // Actualizar perfil en la tabla perfiles
+    const { error: updateError } = await supabaseAdmin
+      .from("perfiles")
+      .update({
+        nombre,
+        apellido,
+        telefono: telefono || "",
+        direccion: direccion || "",
+        rol,
+        actualizado_al: new Date().toISOString()
+      })
+      .eq("id", id);
+
+    if (updateError) {
+      console.log("❌ [GESTION] Error al actualizar:", updateError.message);
+      return res.redirect("/gestion?error=" + encodeURIComponent(updateError.message));
+    }
+
+    console.log("✅ [GESTION] Usuario actualizado:", id);
+
+    res.redirect("/gestion?mensaje=" + encodeURIComponent("Usuario actualizado exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion?error=" + encodeURIComponent("Error al actualizar usuario"));
+  }
+});
+
 // ── Eliminar usuario desde el formulario ─────────────
 router.post("/gestion/eliminar/:id", async (req, res) => {
   console.log("🗑️ [GESTION] Eliminar usuario:", req.params.id);

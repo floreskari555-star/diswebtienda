@@ -151,16 +151,17 @@ const options = {
         post: {
           tags: ["Autenticación"],
           summary: "Iniciar sesión",
-          description: "Autentica al usuario y retorna JWT con su perfil y rol.",
+          description: "Autentica al usuario y retorna JWT con su perfil y rol. Acepta 'email' o 'correo'.",
           requestBody: {
             required: true,
             content: {
               "application/json": {
                 schema: {
                   type: "object",
-                  required: ["email", "password"],
+                  required: ["password"],
                   properties: {
-            correo: { type: "string", format: "email" },
+                    email: { type: "string", format: "email", description: "Email del usuario (alternativa: correo)" },
+                    correo: { type: "string", format: "email", description: "Correo del usuario (alternativa: email)" },
                     password: { type: "string" }
                   }
                 }

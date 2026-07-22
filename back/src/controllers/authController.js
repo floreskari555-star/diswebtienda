@@ -132,11 +132,13 @@ const registroProveedor = async (req, res) => {
 const login = async (req, res) => {
   console.log("🔑 [AUTH] Login");
 
-  const { email, password } = req.body;
+  // Aceptar tanto "email" como "correo"
+  const email = req.body.email || req.body.correo;
+  const { password } = req.body;
 
   if (!email || !password) {
     console.log("❌ [AUTH] Faltan credenciales");
-    return res.status(400).json({ error: "Email y password son requeridos" });
+    return res.status(400).json({ error: "Email/correo y password son requeridos" });
   }
 
   try {
