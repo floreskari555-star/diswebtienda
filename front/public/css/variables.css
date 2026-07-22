@@ -1,0 +1,24 @@
+:root {
+  /* --- Colores Principales y Neutros --- */
+  --bg-primary: #F8F9FA;          /* Fondo general de la página (Blanco humo suave) */
+  --bg-card: #FFFFFF;             /* Fondo para tarjetas de libros, modales y contenedores */
+  --text-main: #1E293B;           /* Texto principal (Pizarra oscura / Slate 800) */
+  --text-muted: #64748B;          /* Texto secundario, descripciones y metadatos (Slate 500) */
+  --border-color: #E2E8F0;        /* Bordes sutiles para tarjetas einputs (Slate 200) */
+
+  /* --- Color de Marca / Autoridad --- */
+  --brand-primary: #0F172A;       /* Azul marino muy oscuro / Negro pizarra (Títulos principales, navbar) */
+  --brand-primary-hover: #334155; /* Estado hover para botones principales */
+
+  /* --- Color de Acento (Call to Action / Compras) --- */
+  --accent-color: #D97706;        /* Ámbar / Terracota elegante (Botón de "Comprar", precios destacados) */
+  --accent-hover: #B45309;        /* Estado hover del botón de compra */
+
+  /* --- Colores de Estado (Para alertas de órdenes y badges) --- */
+  --success-bg: #DCFCE7;          /* Fondo verde claro (Órdenes aprobadas) */
+  --success-text: #166534;        /* Texto verde oscuro */
+  --warning-bg: #FEF3C7;          /* Fondo amarillo/ámbar claro (Órdenes pendientes) */
+  --warning-text: #92400E;        /* Texto amarillo oscuro */
+  --danger-bg: #FEE2E2;           /* Fondo rojo claro (Órdenes rechazadas) */
+  --danger-text: #991B1B;         /* Texto rojo oscuro */
+}

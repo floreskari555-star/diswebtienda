@@ -1,0 +1,224 @@
+/* estilos.css */
+@import url('./variables.css');
+
+/* ── Reset y Base ──────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* ── Tipografía ────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  color: var(--brand-primary);
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* ── Navbar ────────────────────────────────────────── */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+}
+
+/* ── Cards de Libros ───────────────────────────────── */
+.card-libro {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-libro:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card-libro .card-body {
+  padding: 1.25rem;
+}
+
+.card-libro .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-libro .card-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ── Botones ───────────────────────────────────────── */
+.btn-comprar {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-comprar:hover {
+  background-color: var(--accent-hover);
+  color: #FFFFFF;
+  transform: scale(1.02);
+}
+
+.btn-comprar:active {
+  transform: scale(0.98);
+}
+
+/* ── Tabla del Carrito ─────────────────────────────── */
+.table {
+  --bs-table-hover-bg: rgba(15, 23, 42, 0.03);
+}
+
+.table thead th {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table tbody td {
+  vertical-align: middle;
+  padding: 1rem 0.75rem;
+}
+
+/* ── Badges de Roles ───────────────────────────────── */
+.badge {
+  font-weight: 500;
+  padding: 0.4em 0.8em;
+}
+
+/* ── Formularios ───────────────────────────────────── */
+.form-control, .form-select {
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.input-group-text {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px 0 0 8px;
+}
+
+/* ── Alertas ───────────────────────────────────────── */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+/* ── Toast ─────────────────────────────────────────── */
+.toast {
+  border-radius: 8px;
+}
+
+/* ── Spinner ───────────────────────────────────────── */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* ── Scrollbar Personalizado ───────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Utilidades ────────────────────────────────────── */
+.text-brand {
+  color: var(--brand-primary) !important;
+}
+
+.text-accent {
+  color: var(--accent-color) !important;
+}
+
+.bg-brand {
+  background-color: var(--brand-primary) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent-color) !important;
+}
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .card-libro .card-img-top {
+    height: 200px !important;
+  }
+
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+}
+
+/* ── Animaciones ───────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-libro {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* ── Progreso (páginas en construcción) ────────────── */
+.progress {
+  border-radius: 10px;
+  background-color: var(--border-color);
+}
+
+.progress-bar {
+  border-radius: 10px;
+}
