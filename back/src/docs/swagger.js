@@ -43,6 +43,23 @@ const options = {
             actualizado_al: { type: "string", format: "date-time" }
           }
         },
+        Libro: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            titulo: { type: "string", example: "El Arte de la Guerra" },
+            autor: { type: "string", example: "Sun Tzu" },
+            sinopsis: { type: "string", example: "Un tratado militar clásico..." },
+            anio: { type: "integer", example: 2020 },
+            editorial: { type: "string", example: "Editorial Clásicos" },
+            precio: { type: "number", format: "float", example: 29.90 },
+            portada: { type: "string", example: "https://storage.supabase.co/libreria/libro1.png" },
+            archivo_pdf: { type: "string", example: "https://storage.supabase.co/libreria/libro1.pdf" },
+            activo: { type: "boolean", example: true },
+            creado_al: { type: "string", format: "date-time" },
+            actualizado_al: { type: "string", format: "date-time" }
+          }
+        },
         Error: {
           type: "object",
           properties: {
@@ -332,6 +349,166 @@ const options = {
             200: { description: "Usuario eliminado" },
             403: { description: "No se puede eliminar un usuario super" },
             404: { description: "Usuario no encontrado" }
+          }
+        }
+      },
+
+      // ── Libros (CRUD) ───────────────────────────
+      "/api/libros": {
+        get: {
+          tags: ["Libros"],
+          summary: "Listar libros del catálogo",
+          description: "Retorna todos los libros activos. Filtros opcionales: editorial, search, activo.",
+          parameters: [
+            { name: "editorial", in: "query", schema: { type: "string" }, description: "Filtrar por editorial" },
+            { name: "search", in: "query", schema: { type: "string" }, description: "Buscar por título o autor" },
+            { name: "activo", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "Filtrar por estado (solo admin)" }
+          ],
+          responses: {
+            200: {
+              description: "Lista de libros",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      total: { type: "integer" },
+                      libros: { type: "array", items: { "$ref": "#/components/schemas/Libro" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        post: {
+          tags: ["Libros"],
+          summary: "Crear nuevo libro",
+          description: "Requiere rol de admin o super.",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["titulo", "autor", "precio"],
+                  properties: {
+                    titulo: { type: "string", example: "El Arte de la Guerra" },
+                    autor: { type: "string", example: "Sun Tzu" },
+                    sinopsis: { type: "string", example: "Un tratado militar clásico..." },
+                    anio: { type: "integer", example: 2020 },
+                    editorial: { type: "string", example: "Editorial Clásicos" },
+                    precio: { type: "number", example: 29.90 },
+                    portada: { type: "string", example: "https://storage.supabase.co/libreria/libro1.png" },
+                    archivo_pdf: { type: "string", example: "https://storage.supabase.co/libreria/libro1.pdf" },
+                    activo: { type: "boolean", example: true }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            201: { description: "Libro creado exitosamente" },
+            400: { description: "Datos inválidos" },
+            401: { description: "No autenticado" },
+            403: { description: "No autorizado (se requiere admin o super)" }
+          }
+        }
+      },
+
+      "/api/libros/editoriales": {
+        get: {
+          tags: ["Libros"],
+          summary: "Listar editoriales únicas",
+          description: "Retorna la lista de editoriales disponibles en el catálogo.",
+          responses: {
+            200: {
+              description: "Lista de editoriales",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      editoriales: { type: "array", items: { type: "string" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "/api/libros/{id}": {
+        get: {
+          tags: ["Libros"],
+          summary: "Obtener libro por ID",
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: {
+              description: "Libro encontrado",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      libro: { "$ref": "#/components/schemas/Libro" }
+                    }
+                  }
+                }
+              }
+            },
+            404: { description: "Libro no encontrado" }
+          }
+        },
+        put: {
+          tags: ["Libros"],
+          summary: "Actualizar libro",
+          description: "Requiere rol de admin o super. Solo se actualizan los campos enviados.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    titulo: { type: "string" },
+                    autor: { type: "string" },
+                    sinopsis: { type: "string" },
+                    anio: { type: "integer" },
+                    editorial: { type: "string" },
+                    precio: { type: "number" },
+                    portada: { type: "string" },
+                    archivo_pdf: { type: "string" },
+                    activo: { type: "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: { description: "Libro actualizado" },
+            404: { description: "Libro no encontrado" }
+          }
+        },
+        delete: {
+          tags: ["Libros"],
+          summary: "Eliminar libro",
+          description: "Requiere rol de admin o super.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Libro eliminado" },
+            404: { description: "Libro no encontrado" }
           }
         }
       }
