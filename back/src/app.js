@@ -5,6 +5,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fileUpload = require("express-fileupload");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./docs/swagger");
 
@@ -25,6 +26,11 @@ app.set("views", path.join(__dirname, "views"));
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+  abortOnLimit: true,
+  responseOnLimit: "El archivo excede el tamaño máximo permitido (50MB)"
+}));
 
 // ── Logger de cada llamada a endpoint ─────────────────
 app.use((req, res, next) => {

@@ -16,17 +16,17 @@ const { authenticate, authorize } = require("../middlewares/authMiddleware");
 // Listar todos los libros (con filtros opcionales)
 router.get("/libros", listarLibros);
 
-// Obtener editoriales únicas
+// Obtener editoriales
 router.get("/libros/editoriales", listarEditoriales);
 
 // Obtener libro por ID
 router.get("/libros/:id", obtenerLibro);
 
 // ── Rutas protegidas (admin/super) ───────────────────
-// Crear libro
+// Crear libro (con archivos)
 router.post("/libros", authenticate, authorize("super", "admin"), crearLibro);
 
-// Actualizar libro
+// Actualizar libro (con archivos opcionales)
 router.put("/libros/:id", authenticate, authorize("super", "admin"), actualizarLibro);
 
 // Eliminar libro

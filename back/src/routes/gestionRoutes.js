@@ -1,10 +1,10 @@
-/* | Nombre: gestionRoutes.js | Finalidad: Rutas para formulario web de gestión de usuarios (solo desarrollo). */
+/* | Nombre: gestionRoutes.js | Finalidad: Rutas para formulario web de gestión de usuarios y libros (solo desarrollo). */
 
 const express = require("express");
 const router = express.Router();
-const { supabaseAdmin } = require("../config/supabase");
+const { supabaseAdmin, BUCKET_NAME } = require("../config/supabase");
 
-// ── Página principal de gestión ──────────────────────
+// ── Página principal de gestión (Usuarios) ───────────
 router.get("/gestion", async (req, res) => {
   console.log("🌐 [GESTION] Cargando página de gestión");
 
@@ -157,6 +157,288 @@ router.post("/gestion/eliminar/:id", async (req, res) => {
   } catch (err) {
     console.log("❌ [GESTION] Error inesperado:", err.message);
     res.redirect("/gestion?error=" + encodeURIComponent("Error al eliminar usuario"));
+  }
+});
+
+// ═════════════════════════════════════════════════════
+// ── GESTIÓN DE LIBROS ───────────────────────────────
+// ═════════════════════════════════════════════════════
+
+// ── Página de gestión de libros ──────────────────────
+router.get("/gestion/libros", async (req, res) => {
+  console.log("🌐 [GESTION] Cargando gestión de libros");
+
+  try {
+    // Obtener todos los libros con editorial
+    const { data: libros, error: librosError } = await supabaseAdmin
+      .from("libros")
+      .select("*, editoriales(id, nombre)")
+      .order("creado_el", { ascending: false });
+
+    if (librosError) {
+      console.log("❌ [GESTION] Error al obtener libros:", librosError.message);
+    }
+
+    // Obtener editoriales para el select
+    const { data: editoriales, error: editorialesError } = await supabaseAdmin
+      .from("editoriales")
+      .select("*")
+      .order("nombre");
+
+    if (editorialesError) {
+      console.log("❌ [GESTION] Error al obtener editoriales:", editorialesError.message);
+    }
+
+    res.render("gestion-libros", { 
+      libros: libros || [],
+      editoriales: editoriales || [],
+      mensaje: req.query.mensaje || null,
+      error: req.query.error || null
+    });
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.render("gestion-libros", { 
+      libros: [], 
+      editoriales: [],
+      mensaje: null, 
+      error: "Error al cargar libros" 
+    });
+  }
+});
+
+// ── Registrar libro desde el formulario ──────────────
+router.post("/gestion/libros/registro", async (req, res) => {
+  console.log("📝 [GESTION] Registro de libro desde formulario");
+
+  const { titulo, autor, descripcion, sinopsis, anio, editorial_id, precio, activo } = req.body;
+
+  try {
+    let portada_url = "";
+    let archivo_pdf_ruta = "";
+
+    // Subir portada si se proporciona
+    if (req.files && req.files.portada) {
+      const archivo = req.files.portada;
+      const nombreArchivo = `libro${Date.now()}.png`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .upload(nombreArchivo, archivo.data, {
+          contentType: archivo.mimetype
+        });
+
+      if (uploadError) {
+        console.log("❌ [GESTION] Error al subir portada:", uploadError.message);
+        return res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al subir la portada"));
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(nombreArchivo);
+
+      portada_url = urlData.publicUrl;
+    }
+
+    // Subir PDF si se proporciona
+    if (req.files && req.files.archivo_pdf) {
+      const archivo = req.files.archivo_pdf;
+      const nombreArchivo = `libro${Date.now()}.pdf`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .upload(nombreArchivo, archivo.data, {
+          contentType: archivo.mimetype
+        });
+
+      if (uploadError) {
+        console.log("❌ [GESTION] Error al subir PDF:", uploadError.message);
+        return res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al subir el archivo PDF"));
+      }
+
+      archivo_pdf_ruta = nombreArchivo;
+    }
+
+    // Crear libro en la base de datos
+    const { error } = await supabaseAdmin
+      .from("libros")
+      .insert({
+        titulo,
+        autor,
+        descripcion: descripcion || "",
+        sinopsis: sinopsis || "",
+        anio: anio ? parseInt(anio) : null,
+        editorial_id,
+        precio: parseFloat(precio),
+        portada_url,
+        archivo_pdf_ruta,
+        activo: activo === "on"
+      });
+
+    if (error) {
+      console.log("❌ [GESTION] Error al crear libro:", error.message);
+      return res.redirect("/gestion/libros?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Libro creado:", titulo);
+
+    res.redirect("/gestion/libros?mensaje=" + encodeURIComponent("Libro creado exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al crear libro"));
+  }
+});
+
+// ── Actualizar libro desde el formulario ─────────────
+router.post("/gestion/libros/actualizar/:id", async (req, res) => {
+  console.log("✏️ [GESTION] Actualizar libro:", req.params.id);
+
+  const { id } = req.params;
+  const { titulo, autor, descripcion, sinopsis, anio, editorial_id, precio, activo } = req.body;
+
+  try {
+    // Verificar que el libro existe
+    const { data: existe } = await supabaseAdmin
+      .from("libros")
+      .select("id, portada_url, archivo_pdf_ruta")
+      .eq("id", id)
+      .single();
+
+    if (!existe) {
+      return res.redirect("/gestion/libros?error=" + encodeURIComponent("Libro no encontrado"));
+    }
+
+    const updates = {
+      titulo,
+      autor,
+      descripcion: descripcion || "",
+      sinopsis: sinopsis || "",
+      anio: anio ? parseInt(anio) : null,
+      editorial_id,
+      precio: parseFloat(precio),
+      activo: activo === "on"
+    };
+
+    // Actualizar portada si se proporciona
+    if (req.files && req.files.portada) {
+      const archivo = req.files.portada;
+      const nombreArchivo = `libro${Date.now()}.png`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .upload(nombreArchivo, archivo.data, {
+          contentType: archivo.mimetype
+        });
+
+      if (uploadError) {
+        console.log("❌ [GESTION] Error al subir portada:", uploadError.message);
+        return res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al subir la portada"));
+      }
+
+      // Eliminar portada anterior
+      if (existe.portada_url) {
+        const nombreAnterior = existe.portada_url.split("/").pop();
+        await supabaseAdmin.storage.from(BUCKET_NAME).remove([nombreAnterior]);
+      }
+
+      const { data: urlData } = supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(nombreArchivo);
+
+      updates.portada_url = urlData.publicUrl;
+    }
+
+    // Actualizar PDF si se proporciona
+    if (req.files && req.files.archivo_pdf) {
+      const archivo = req.files.archivo_pdf;
+      const nombreArchivo = `libro${Date.now()}.pdf`;
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .upload(nombreArchivo, archivo.data, {
+          contentType: archivo.mimetype
+        });
+
+      if (uploadError) {
+        console.log("❌ [GESTION] Error al subir PDF:", uploadError.message);
+        return res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al subir el archivo PDF"));
+      }
+
+      // Eliminar PDF anterior
+      if (existe.archivo_pdf_ruta) {
+        await supabaseAdmin.storage.from(BUCKET_NAME).remove([existe.archivo_pdf_ruta]);
+      }
+
+      updates.archivo_pdf_ruta = nombreArchivo;
+    }
+
+    // Actualizar libro
+    const { error } = await supabaseAdmin
+      .from("libros")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) {
+      console.log("❌ [GESTION] Error al actualizar:", error.message);
+      return res.redirect("/gestion/libros?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Libro actualizado:", id);
+
+    res.redirect("/gestion/libros?mensaje=" + encodeURIComponent("Libro actualizado exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al actualizar libro"));
+  }
+});
+
+// ── Eliminar libro desde el formulario ───────────────
+router.post("/gestion/libros/eliminar/:id", async (req, res) => {
+  console.log("🗑️ [GESTION] Eliminar libro:", req.params.id);
+
+  const { id } = req.params;
+
+  try {
+    // Verificar que el libro existe
+    const { data: existe } = await supabaseAdmin
+      .from("libros")
+      .select("id, titulo, portada_url, archivo_pdf_ruta")
+      .eq("id", id)
+      .single();
+
+    if (!existe) {
+      return res.redirect("/gestion/libros?error=" + encodeURIComponent("Libro no encontrado"));
+    }
+
+    // Eliminar archivos del storage
+    const archivosAEliminar = [];
+    if (existe.portada_url) {
+      archivosAEliminar.push(existe.portada_url.split("/").pop());
+    }
+    if (existe.archivo_pdf_ruta) {
+      archivosAEliminar.push(existe.archivo_pdf_ruta);
+    }
+
+    if (archivosAEliminar.length > 0) {
+      await supabaseAdmin.storage.from(BUCKET_NAME).remove(archivosAEliminar);
+    }
+
+    // Eliminar libro
+    const { error } = await supabaseAdmin
+      .from("libros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.log("❌ [GESTION] Error al eliminar:", error.message);
+      return res.redirect("/gestion/libros?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Libro eliminado:", existe.titulo);
+
+    res.redirect("/gestion/libros?mensaje=" + encodeURIComponent("Libro eliminado exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/libros?error=" + encodeURIComponent("Error al eliminar libro"));
   }
 });
 

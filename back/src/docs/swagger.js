@@ -49,15 +49,24 @@ const options = {
             id: { type: "string", format: "uuid" },
             titulo: { type: "string", example: "El Arte de la Guerra" },
             autor: { type: "string", example: "Sun Tzu" },
+            descripcion: { type: "string", example: "Descripción del libro" },
             sinopsis: { type: "string", example: "Un tratado militar clásico..." },
             anio: { type: "integer", example: 2020 },
-            editorial: { type: "string", example: "Editorial Clásicos" },
+            editorial_id: { type: "string", format: "uuid", description: "ID de la editorial" },
             precio: { type: "number", format: "float", example: 29.90 },
-            portada: { type: "string", example: "https://storage.supabase.co/libreria/libro1.png" },
-            archivo_pdf: { type: "string", example: "https://storage.supabase.co/libreria/libro1.pdf" },
+            portada_url: { type: "string", example: "https://storage.supabase.co/libreria/libro1.png" },
+            archivo_pdf_ruta: { type: "string", example: "libro1.pdf" },
             activo: { type: "boolean", example: true },
-            creado_al: { type: "string", format: "date-time" },
-            actualizado_al: { type: "string", format: "date-time" }
+            creado_el: { type: "string", format: "date-time" },
+            actualizado_el: { type: "string", format: "date-time" },
+            editoriales: {
+              type: "object",
+              description: "Objeto de editorial (incluido en queries con JOIN)",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                nombre: { type: "string", example: "Editorial Clásicos" }
+              }
+            }
           }
         },
         Error: {
@@ -358,9 +367,9 @@ const options = {
         get: {
           tags: ["Libros"],
           summary: "Listar libros del catálogo",
-          description: "Retorna todos los libros activos. Filtros opcionales: editorial, search, activo.",
+          description: "Retorna todos los libros activos. Filtros opcionales: editorial_id, search, activo.",
           parameters: [
-            { name: "editorial", in: "query", schema: { type: "string" }, description: "Filtrar por editorial" },
+            { name: "editorial_id", in: "query", schema: { type: "string", format: "uuid" }, description: "Filtrar por ID de editorial" },
             { name: "search", in: "query", schema: { type: "string" }, description: "Buscar por título o autor" },
             { name: "activo", in: "query", schema: { type: "string", enum: ["true", "false"] }, description: "Filtrar por estado (solo admin)" }
           ],
@@ -384,25 +393,26 @@ const options = {
         post: {
           tags: ["Libros"],
           summary: "Crear nuevo libro",
-          description: "Requiere rol de admin o super.",
+          description: "Requiere rol de admin o super. Acepta multipart/form-data para subir archivos.",
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
-              "application/json": {
+              "multipart/form-data": {
                 schema: {
                   type: "object",
-                  required: ["titulo", "autor", "precio"],
+                  required: ["titulo", "autor", "editorial_id", "precio"],
                   properties: {
                     titulo: { type: "string", example: "El Arte de la Guerra" },
                     autor: { type: "string", example: "Sun Tzu" },
+                    editorial_id: { type: "string", format: "uuid", description: "ID de la editorial" },
+                    precio: { type: "number", example: 29.90 },
+                    descripcion: { type: "string", example: "Descripción del libro" },
                     sinopsis: { type: "string", example: "Un tratado militar clásico..." },
                     anio: { type: "integer", example: 2020 },
-                    editorial: { type: "string", example: "Editorial Clásicos" },
-                    precio: { type: "number", example: 29.90 },
-                    portada: { type: "string", example: "https://storage.supabase.co/libreria/libro1.png" },
-                    archivo_pdf: { type: "string", example: "https://storage.supabase.co/libreria/libro1.pdf" },
-                    activo: { type: "boolean", example: true }
+                    activo: { type: "boolean", example: true },
+                    portada: { type: "string", format: "binary", description: "Imagen de portada (PNG/JPG)" },
+                    archivo_pdf: { type: "string", format: "binary", description: "Archivo PDF del libro" }
                   }
                 }
               }
@@ -420,8 +430,8 @@ const options = {
       "/api/libros/editoriales": {
         get: {
           tags: ["Libros"],
-          summary: "Listar editoriales únicas",
-          description: "Retorna la lista de editoriales disponibles en el catálogo.",
+          summary: "Listar editoriales disponibles",
+          description: "Retorna la lista de editoriales registradas.",
           responses: {
             200: {
               description: "Lista de editoriales",
@@ -430,7 +440,17 @@ const options = {
                   schema: {
                     type: "object",
                     properties: {
-                      editoriales: { type: "array", items: { type: "string" } }
+                      editoriales: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string", format: "uuid" },
+                            nombre: { type: "string" },
+                            correo_contacto: { type: "string" }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -467,7 +487,7 @@ const options = {
         put: {
           tags: ["Libros"],
           summary: "Actualizar libro",
-          description: "Requiere rol de admin o super. Solo se actualizan los campos enviados.",
+          description: "Requiere rol de admin o super. Acepta multipart/form-data para actualizar archivos.",
           security: [{ bearerAuth: [] }],
           parameters: [
             { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
@@ -475,19 +495,20 @@ const options = {
           requestBody: {
             required: true,
             content: {
-              "application/json": {
+              "multipart/form-data": {
                 schema: {
                   type: "object",
                   properties: {
                     titulo: { type: "string" },
                     autor: { type: "string" },
+                    editorial_id: { type: "string", format: "uuid" },
+                    precio: { type: "number" },
+                    descripcion: { type: "string" },
                     sinopsis: { type: "string" },
                     anio: { type: "integer" },
-                    editorial: { type: "string" },
-                    precio: { type: "number" },
-                    portada: { type: "string" },
-                    archivo_pdf: { type: "string" },
-                    activo: { type: "boolean" }
+                    activo: { type: "boolean" },
+                    portada: { type: "string", format: "binary", description: "Nueva portada (opcional)" },
+                    archivo_pdf: { type: "string", format: "binary", description: "Nuevo PDF (opcional)" }
                   }
                 }
               }
@@ -501,7 +522,7 @@ const options = {
         delete: {
           tags: ["Libros"],
           summary: "Eliminar libro",
-          description: "Requiere rol de admin o super.",
+          description: "Requiere rol de admin o super. Elimina archivos del storage.",
           security: [{ bearerAuth: [] }],
           parameters: [
             { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
