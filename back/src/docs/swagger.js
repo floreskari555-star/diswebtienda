@@ -78,6 +78,46 @@ const options = {
             creado_el: { type: "string", format: "date-time" }
           }
         },
+        SolicitudDerechos: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            usuario_id: { type: "string", format: "uuid" },
+            editorial_id: { type: "string", format: "uuid" },
+            titulo: { type: "string", example: "El Arte de la Guerra" },
+            autor: { type: "string", example: "Sun Tzu" },
+            descripcion: { type: "string" },
+            sinopsis: { type: "string" },
+            anio: { type: "integer" },
+            precio: { type: "number", format: "float" },
+            monto_derechos: { type: "number", format: "float" },
+            observaciones: { type: "string" },
+            estado: { type: "string", enum: ["pendiente", "en_revision", "aprobada", "rechazada", "archivada"] },
+            creado_el: { type: "string", format: "date-time" },
+            editoriales: { type: "object" },
+            perfiles: { type: "object" }
+          }
+        },
+        PagoEditorial: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            solicitud_id: { type: "string", format: "uuid" },
+            usuario_id: { type: "string", format: "uuid" },
+            editorial_id: { type: "string", format: "uuid" },
+            monto: { type: "number", format: "float" },
+            comprobante_url: { type: "string" },
+            numero_operacion: { type: "string" },
+            fecha_pago: { type: "string", format: "date" },
+            observaciones: { type: "string" },
+            estado: { type: "string", enum: ["pendiente", "aprobado", "rechazado"] },
+            motivo_rechazo: { type: "string" },
+            creado_el: { type: "string", format: "date-time" },
+            solicitudes_derechos: { type: "object" },
+            editoriales: { type: "object" },
+            perfiles: { type: "object" }
+          }
+        },
         Error: {
           type: "object",
           properties: {
@@ -659,6 +699,226 @@ const options = {
             200: { description: "Editorial eliminada" },
             400: { description: "Tiene libros asociados" },
             404: { description: "Editorial no encontrada" }
+          }
+        }
+      },
+
+      // ── Solicitudes de Derechos ─────────────────────
+      "/api/solicitudes": {
+        get: {
+          tags: ["Solicitudes"],
+          summary: "Listar solicitudes de derechos",
+          description: "Admin ve todas, proveedor ve las suyas.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "estado", in: "query", schema: { type: "string", enum: ["pendiente", "en_revision", "aprobada", "rechazada", "archivada"] } },
+            { name: "editorial_id", in: "query", schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Lista de solicitudes" },
+            401: { description: "No autenticado" }
+          }
+        },
+        post: {
+          tags: ["Solicitudes"],
+          summary: "Crear solicitud de derechos",
+          description: "Proveedor o admin registran una propuesta de título.",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["editorial_id", "titulo", "autor", "precio", "monto_derechos"],
+                  properties: {
+                    editorial_id: { type: "string", format: "uuid" },
+                    titulo: { type: "string" },
+                    autor: { type: "string" },
+                    descripcion: { type: "string" },
+                    sinopsis: { type: "string" },
+                    anio: { type: "integer" },
+                    precio: { type: "number" },
+                    monto_derechos: { type: "number" },
+                    observaciones: { type: "string" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            201: { description: "Solicitud creada" },
+            400: { description: "Datos inválidos" }
+          }
+        }
+      },
+
+      "/api/solicitudes/{id}": {
+        get: {
+          tags: ["Solicitudes"],
+          summary: "Obtener solicitud por ID",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Solicitud encontrada" },
+            404: { description: "No encontrada" }
+          }
+        },
+        put: {
+          tags: ["Solicitudes"],
+          summary: "Actualizar solicitud",
+          description: "Solo si está pendiente o en revisión.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    editorial_id: { type: "string", format: "uuid" },
+                    titulo: { type: "string" },
+                    autor: { type: "string" },
+                    precio: { type: "number" },
+                    monto_derechos: { type: "number" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: { description: "Solicitud actualizada" },
+            400: { description: "Estado no permite edición" }
+          }
+        },
+        delete: {
+          tags: ["Solicitudes"],
+          summary: "Eliminar solicitud",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Solicitud eliminada" }
+          }
+        }
+      },
+
+      "/api/solicitudes/{id}/estado": {
+        patch: {
+          tags: ["Solicitudes"],
+          summary: "Cambiar estado de solicitud",
+          description: "Solo admin/super.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["estado"],
+                  properties: {
+                    estado: { type: "string", enum: ["pendiente", "en_revision", "aprobada", "rechazada", "archivada"] }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: { description: "Estado actualizado" }
+          }
+        }
+      },
+
+      // ── Pagos a Editoriales ─────────────────────────
+      "/api/pagos": {
+        get: {
+          tags: ["Pagos"],
+          summary: "Listar pagos a editoriales",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "estado", in: "query", schema: { type: "string", enum: ["pendiente", "aprobado", "rechazado"] } },
+            { name: "solicitud_id", in: "query", schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Lista de pagos" }
+          }
+        },
+        post: {
+          tags: ["Pagos"],
+          summary: "Registrar pago a editorial",
+          description: "Proveedor o admin registran comprobante de pago.",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  required: ["solicitud_id", "editorial_id", "monto"],
+                  properties: {
+                    solicitud_id: { type: "string", format: "uuid" },
+                    editorial_id: { type: "string", format: "uuid" },
+                    monto: { type: "number" },
+                    numero_operacion: { type: "string" },
+                    fecha_pago: { type: "string", format: "date" },
+                    observaciones: { type: "string" },
+                    comprobante: { type: "string", format: "binary", description: "Imagen del comprobante" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            201: { description: "Pago registrado" }
+          }
+        }
+      },
+
+      "/api/pagos/{id}/aprobar": {
+        patch: {
+          tags: ["Pagos"],
+          summary: "Aprobar pago",
+          description: "Solo admin. Aprobación automática de la solicitud asociada.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Pago aprobado, solicitud habilitada para carga de archivos" }
+          }
+        }
+      },
+
+      "/api/pagos/{id}/rechazar": {
+        patch: {
+          tags: ["Pagos"],
+          summary: "Rechazar pago",
+          description: "Solo admin. Requiere motivo.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["motivo_rechazo"],
+                  properties: {
+                    motivo_rechazo: { type: "string" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: { description: "Pago rechazado" }
           }
         }
       }

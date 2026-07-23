@@ -3,88 +3,925 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Admin - DisWebTienda</title>
+  <title>Panel de Administración - DisWebTienda</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="public/css/variables.css" rel="stylesheet">
   <link href="public/css/estilos.css" rel="stylesheet">
   <style>
-    .construccion-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--brand-primary) 0%, #334155 100%);
-    }
-    .construccion-card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      padding: 3rem;
-      text-align: center;
-      max-width: 500px;
-      width: 100%;
-    }
-    .icon-construccion {
-      font-size: 5rem;
-      color: var(--accent-color);
-      animation: bounce 2s infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+    .sidebar { min-height: 100vh; background: var(--brand-primary); }
+    .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 0.8rem 1.2rem; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,0.1); }
+    .sidebar .nav-link i { width: 24px; }
+    .main-content { background: #f8f9fa; min-height: 100vh; }
+    .stat-card { border-left: 4px solid; border-radius: 8px; }
+    .badge-estado { font-size: 0.75rem; }
   </style>
 </head>
 <body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-2 sidebar p-0">
+        <div class="p-3 text-white">
+          <h5 class="mb-0"><i class="bi bi-book-half me-2"></i>DisWebTienda</h5>
+          <small class="opacity-75">Panel de Administración</small>
+        </div>
+        <hr class="text-white my-0" style="opacity: 0.2;">
+        <ul class="nav flex-column p-2">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" data-tab="dashboard">
+              <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-tab="solicitudes">
+              <i class="bi bi-file-earmark-text me-2"></i>Solicitudes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-tab="pagos">
+              <i class="bi bi-credit-card me-2"></i>Pagos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-tab="libros">
+              <i class="bi bi-book me-2"></i>Libros
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-tab="editoriales">
+              <i class="bi bi-building me-2"></i>Editoriales
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-tab="usuarios">
+              <i class="bi bi-people me-2"></i>Usuarios
+            </a>
+          </li>
+        </ul>
+        <hr class="text-white my-0" style="opacity: 0.2;">
+        <div class="p-3">
+          <div class="text-white-50 small" id="user-info"></div>
+          <button class="btn btn-outline-light btn-sm w-100 mt-2" onclick="logout()">
+            <i class="bi bi-box-arrow-left me-1"></i>Cerrar Sesión
+          </button>
+        </div>
+      </nav>
 
-  <div class="construccion-container">
-    <div class="construccion-card">
-      <i class="bi bi-person-gear icon-construccion"></i>
-      <h2 class="mt-4 mb-3" style="font-family: 'Playfair Display', serif; color: var(--brand-primary);">
-        Panel de Administración
-      </h2>
-      <p class="text-muted mb-4">
-        Esta sección está actualmente <strong>en construcción</strong>. 
-        Pronto tendrás acceso completo a las herramientas de administración.
-      </p>
-
-      <div class="d-flex flex-column gap-2 mb-4">
-        <div class="d-flex align-items-center text-start p-2 rounded" style="background-color: var(--warning-bg);">
-          <i class="bi bi-hourglass-split text-warning me-3 fs-4"></i>
-          <div>
-            <strong>Aprobación de pagos</strong>
-            <small class="d-block text-muted">Revisar y aprobar comprobantes de pago</small>
+      <!-- Contenido principal -->
+      <main class="col-md-10 main-content p-4">
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="tab-content">
+          <h2 class="mb-4">Dashboard</h2>
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card stat-card" style="border-color: var(--accent-color);">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="text-muted mb-1">Solicitudes Pendientes</h6>
+                      <h3 id="stat-solicitudes" class="mb-0">-</h3>
+                    </div>
+                    <i class="bi bi-file-earmark-text fs-1 text-muted"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card" style="border-color: #ffc107;">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="text-muted mb-1">Pagos Pendientes</h6>
+                      <h3 id="stat-pagos" class="mb-0">-</h3>
+                    </div>
+                    <i class="bi bi-credit-card fs-1 text-muted"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card" style="border-color: #198754;">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="text-muted mb-1">Libros Activos</h6>
+                      <h3 id="stat-libros" class="mb-0">-</h3>
+                    </div>
+                    <i class="bi bi-book fs-1 text-muted"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card stat-card" style="border-color: #0dcaf0;">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h6 class="text-muted mb-1">Usuarios</h6>
+                      <h3 id="stat-usuarios" class="mb-0">-</h3>
+                    </div>
+                    <i class="bi bi-people fs-1 text-muted"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header bg-dark text-white">
+              <h5 class="mb-0">Actividad Reciente</h5>
+            </div>
+            <div class="card-body">
+              <div id="actividad-reciente" class="text-muted">Cargando...</div>
+            </div>
           </div>
         </div>
-        <div class="d-flex align-items-center text-start p-2 rounded" style="background-color: var(--warning-bg);">
-          <i class="bi bi-file-earmark-text text-warning me-3 fs-4"></i>
-          <div>
-            <strong>Generación de facturas</strong>
-            <small class="d-block text-muted">Emitir facturas automáticas aprobadas</small>
+
+        <!-- Solicitudes -->
+        <div id="tab-solicitudes" class="tab-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Solicitudes de Derechos</h2>
+            <button class="btn btn-primary" onclick="abrirModalNuevaSolicitud()">
+              <i class="bi bi-plus-circle me-1"></i>Nueva Solicitud
+            </button>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Editorial</th>
+                      <th>Precio</th>
+                      <th>Derechos</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-solicitudes">
+                    <tr><td colspan="8" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="d-flex align-items-center text-start p-2 rounded" style="background-color: var(--warning-bg);">
-          <i class="bi bi-people text-warning me-3 fs-4"></i>
-          <div>
-            <strong>Gestión de usuarios</strong>
-            <small class="d-block text-muted">Administrar roles y permisos</small>
+
+        <!-- Pagos -->
+        <div id="tab-pagos" class="tab-content d-none">
+          <h2 class="mb-4">Pagos a Editoriales</h2>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Solicitud</th>
+                      <th>Editorial</th>
+                      <th>Monto</th>
+                      <th>Comprobante</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-pagos">
+                    <tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Libros -->
+        <div id="tab-libros" class="tab-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Libros</h2>
+            <button class="btn btn-primary" onclick="abrirModalNuevoLibro()">
+              <i class="bi bi-plus-circle me-1"></i>Nuevo Libro
+            </button>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Portada</th>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Editorial</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-libros">
+                    <tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Editoriales -->
+        <div id="tab-editoriales" class="tab-content d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Editoriales</h2>
+            <button class="btn btn-primary" onclick="abrirModalNuevaEditorial()">
+              <i class="bi bi-plus-circle me-1"></i>Nueva Editorial
+            </button>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Fecha</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-editoriales">
+                    <tr><td colspan="4" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usuarios -->
+        <div id="tab-usuarios" class="tab-content d-none">
+          <h2 class="mb-4">Usuarios</h2>
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Rol</th>
+                      <th>Registro</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-usuarios">
+                    <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva Solicitud -->
+  <div class="modal fade" id="modalSolicitud" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formSolicitud">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nueva Solicitud de Derechos</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Editorial *</label>
+                <select class="form-select" id="sol-editorial" required></select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Título *</label>
+                <input type="text" class="form-control" id="sol-titulo" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Autor *</label>
+                <input type="text" class="form-control" id="sol-autor" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Año</label>
+                <input type="number" class="form-control" id="sol-anio">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Precio (S/) *</label>
+                <input type="number" class="form-control" id="sol-precio" step="0.01" min="0" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Monto Derechos (S/) *</label>
+                <input type="number" class="form-control" id="sol-monto" step="0.01" min="0" required>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" id="sol-descripcion" rows="2"></textarea>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Sinopsis</label>
+                <textarea class="form-control" id="sol-sinopsis" rows="3"></textarea>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Observaciones</label>
+                <textarea class="form-control" id="sol-observaciones" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear Solicitud</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Nuevo Libro -->
+  <div class="modal fade" id="modalLibro" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formLibro" enctype="multipart/form-data">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nuevo Libro</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Editorial *</label>
+                <select class="form-select" id="lib-editorial" required></select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Título *</label>
+                <input type="text" class="form-control" id="lib-titulo" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Autor *</label>
+                <input type="text" class="form-control" id="lib-autor" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Año</label>
+                <input type="number" class="form-control" id="lib-anio">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Precio (S/) *</label>
+                <input type="number" class="form-control" id="lib-precio" step="0.01" min="0" required>
+              </div>
+              <div class="col-12 mb-3">
+                <label class="form-label">Sinopsis</label>
+                <textarea class="form-control" id="lib-sinopsis" rows="2"></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Portada (imagen)</label>
+                <input type="file" class="form-control" name="portada" accept="image/*">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Archivo PDF</label>
+                <input type="file" class="form-control" name="archivo_pdf" accept=".pdf">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear Libro</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva Editorial -->
+  <div class="modal fade" id="modalEditorial" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditorial">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nueva Editorial</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="ed-nombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo de contacto</label>
+              <input type="email" class="form-control" id="ed-correo">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear Editorial</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ver Comprobante -->
+  <div class="modal fade" id="modalComprobante" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Comprobante de Pago</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="comprobante-img" src="" alt="Comprobante" class="img-fluid rounded" style="max-height: 500px;">
         </div>
       </div>
-
-      <div class="progress mb-4" style="height: 8px;">
-        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 35%; background-color: var(--accent-color);"></div>
-      </div>
-      <p class="small text-muted">Progreso estimado: 35%</p>
-
-      <a href="index.html" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>Volver al Catálogo
-      </a>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/config.js"></script>
+  <script>
+    // ── Variables globales ────────────────────────────
+    let usuario = null;
+    let token = null;
+
+    // ── Verificar autenticación ───────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      const userData = sessionStorage.getItem("user");
+      if (!userData) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      usuario = JSON.parse(userData);
+      token = usuario.token;
+
+      if (!["super", "admin"].includes(usuario.rol)) {
+        alert("No tienes permisos de administrador");
+        window.location.href = "index.html";
+        return;
+      }
+
+      document.getElementById("user-info").innerHTML = `
+        <strong>${usuario.nombre} ${usuario.apellido}</strong><br>
+        <span class="badge bg-warning text-dark">${usuario.rol}</span>
+      `;
+
+      cargarDashboard();
+      configurarTabs();
+      configurarFormularios();
+    });
+
+    // ── Configurar navegación por tabs ────────────────
+    function configurarTabs() {
+      document.querySelectorAll("[data-tab]").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const tab = link.dataset.tab;
+
+          document.querySelectorAll("[data-tab]").forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+
+          document.querySelectorAll(".tab-content").forEach(t => t.classList.add("d-none"));
+          document.getElementById("tab-" + tab).classList.remove("d-none");
+
+          if (tab === "solicitudes") cargarSolicitudes();
+          if (tab === "pagos") cargarPagos();
+          if (tab === "libros") cargarLibros();
+          if (tab === "editoriales") cargarEditoriales();
+          if (tab === "usuarios") cargarUsuarios();
+        });
+      });
+    }
+
+    // ── API helper ────────────────────────────────────
+    async function api(endpoint, options = {}) {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          ...options.headers
+        },
+        ...options
+      };
+
+      if (config.body && typeof config.body === "object" && !(config.body instanceof FormData)) {
+        config.body = JSON.stringify(config.body);
+      }
+
+      if (config.body instanceof FormData) {
+        delete config.headers["Content-Type"];
+      }
+
+      const response = await fetch(`${CONFIG.BACKEND_URL}${endpoint}`, config);
+      return response.json();
+    }
+
+    // ── Dashboard ─────────────────────────────────────
+    async function cargarDashboard() {
+      try {
+        const [solicitudes, pagos, libros, usuarios] = await Promise.all([
+          api("/api/solicitudes?estado=pendiente"),
+          api("/api/pagos?estado=pendiente"),
+          api("/api/libros?activo=true"),
+          api("/api/usuarios")
+        ]);
+
+        document.getElementById("stat-solicitudes").textContent = solicitudes.total || 0;
+        document.getElementById("stat-pagos").textContent = pagos.total || 0;
+        document.getElementById("stat-libros").textContent = libros.total || 0;
+        document.getElementById("stat-usuarios").textContent = usuarios.total || 0;
+
+        document.getElementById("actividad-reciente").innerHTML = `
+          <p><i class="bi bi-clock me-2"></i>Última actualización: ${new Date().toLocaleString('es-PE')}</p>
+        `;
+      } catch (err) {
+        console.error("Error al cargar dashboard:", err);
+      }
+    }
+
+    // ── Solicitudes ───────────────────────────────────
+    async function cargarSolicitudes() {
+      try {
+        const data = await api("/api/solicitudes");
+        const tbody = document.getElementById("tabla-solicitudes");
+
+        if (!data.solicitudes || data.solicitudes.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No hay solicitudes</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.solicitudes.map(s => `
+          <tr>
+            <td>${s.titulo}</td>
+            <td>${s.autor}</td>
+            <td>${s.editoriales?.nombre || '-'}</td>
+            <td>S/ ${parseFloat(s.precio).toFixed(2)}</td>
+            <td>S/ ${parseFloat(s.monto_derechos).toFixed(2)}</td>
+            <td><span class="badge badge-estado bg-${getEstadoColor(s.estado)}">${s.estado}</span></td>
+            <td>${new Date(s.creado_el).toLocaleDateString('es-PE')}</td>
+            <td>
+              ${s.estado === 'aprobada' ? `
+                <button class="btn btn-success btn-sm" onclick="subirArchivos('${s.id}')">
+                  <i class="bi bi-upload"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-warning btn-sm" onclick="cambiarEstado('${s.id}', 'en_revision')">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="cambiarEstado('${s.id}', 'rechazada')">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    function getEstadoColor(estado) {
+      const colores = {
+        pendiente: "warning",
+        en_revision: "info",
+        aprobada: "success",
+        rechazada: "danger",
+        archivada: "secondary"
+      };
+      return colores[estado] || "secondary";
+    }
+
+    async function cambiarEstado(id, estado) {
+      if (!confirm(`¿Cambiar estado a "${estado}"?`)) return;
+
+      try {
+        await api(`/api/solicitudes/${id}/estado`, {
+          method: "PATCH",
+          body: { estado }
+        });
+        cargarSolicitudes();
+      } catch (err) {
+        alert("Error al cambiar estado");
+      }
+    }
+
+    // ── Pagos ─────────────────────────────────────────
+    async function cargarPagos() {
+      try {
+        const data = await api("/api/pagos");
+        const tbody = document.getElementById("tabla-pagos");
+
+        if (!data.pagos || data.pagos.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay pagos</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.pagos.map(p => `
+          <tr>
+            <td>${p.solicitudes_derechos?.titulo || '-'}</td>
+            <td>${p.editoriales?.nombre || '-'}</td>
+            <td>S/ ${parseFloat(p.monto).toFixed(2)}</td>
+            <td>
+              ${p.comprobante_url ? `
+                <button class="btn btn-outline-primary btn-sm" onclick="verComprobante('${p.comprobante_url}')">
+                  <i class="bi bi-image"></i> Ver
+                </button>
+              ` : '<span class="text-muted">Sin comprobante</span>'}
+            </td>
+            <td><span class="badge bg-${p.estado === 'aprobado' ? 'success' : p.estado === 'rechazado' ? 'danger' : 'warning'}">${p.estado}</span></td>
+            <td>${new Date(p.creado_el).toLocaleDateString('es-PE')}</td>
+            <td>
+              ${p.estado === 'pendiente' ? `
+                <button class="btn btn-success btn-sm" onclick="aprobarPago('${p.id}')">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="rechazarPago('${p.id}')">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    function verComprobante(url) {
+      document.getElementById("comprobante-img").src = url;
+      new bootstrap.Modal(document.getElementById("modalComprobante")).show();
+    }
+
+    async function aprobarPago(id) {
+      if (!confirm("¿Aprobar este pago? La solicitud se habilitará para carga de archivos.")) return;
+
+      try {
+        const result = await api(`/api/pagos/${id}/aprobar`, { method: "PATCH" });
+        alert(result.mensaje);
+        cargarPagos();
+        cargarSolicitudes();
+      } catch (err) {
+        alert("Error al aprobar");
+      }
+    }
+
+    async function rechazarPago(id) {
+      const motivo = prompt("Motivo del rechazo:");
+      if (!motivo) return;
+
+      try {
+        await api(`/api/pagos/${id}/rechazar`, {
+          method: "PATCH",
+          body: { motivo_rechazo: motivo }
+        });
+        cargarPagos();
+      } catch (err) {
+        alert("Error al rechazar");
+      }
+    }
+
+    // ── Libros ────────────────────────────────────────
+    async function cargarLibros() {
+      try {
+        const data = await api("/api/libros");
+        const tbody = document.getElementById("tabla-libros");
+
+        if (!data.libros || data.libros.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay libros</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.libros.map(l => `
+          <tr>
+            <td>
+              ${l.portada_url ? `<img src="${l.portada_url}" style="width:50px;height:70px;object-fit:cover;border-radius:4px;">` : '<span class="text-muted">Sin portada</span>'}
+            </td>
+            <td>${l.titulo}</td>
+            <td>${l.autor}</td>
+            <td>${l.editoriales?.nombre || '-'}</td>
+            <td>S/ ${parseFloat(l.precio).toFixed(2)}</td>
+            <td><span class="badge bg-${l.activo ? 'success' : 'secondary'}">${l.activo ? 'Activo' : 'Inactivo'}</span></td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="eliminarLibro('${l.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    async function eliminarLibro(id) {
+      if (!confirm("¿Eliminar este libro?")) return;
+
+      try {
+        await api(`/api/libros/${id}`, { method: "DELETE" });
+        cargarLibros();
+      } catch (err) {
+        alert("Error al eliminar");
+      }
+    }
+
+    // ── Editoriales ───────────────────────────────────
+    async function cargarEditoriales() {
+      try {
+        const data = await api("/api/editoriales");
+        const tbody = document.getElementById("tabla-editoriales");
+
+        if (!data.editoriales || data.editoriales.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay editoriales</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.editoriales.map(e => `
+          <tr>
+            <td>${e.nombre}</td>
+            <td>${e.correo_contacto || '-'}</td>
+            <td>${new Date(e.creado_el).toLocaleDateString('es-PE')}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="eliminarEditorial('${e.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    async function eliminarEditorial(id) {
+      if (!confirm("¿Eliminar esta editorial?")) return;
+
+      try {
+        await api(`/api/editoriales/${id}`, { method: "DELETE" });
+        cargarEditoriales();
+      } catch (err) {
+        alert("Error al eliminar");
+      }
+    }
+
+    // ── Usuarios ──────────────────────────────────────
+    async function cargarUsuarios() {
+      try {
+        const data = await api("/api/usuarios");
+        const tbody = document.getElementById("tabla-usuarios");
+
+        if (!data.usuarios || data.usuarios.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay usuarios</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.usuarios.map(u => `
+          <tr>
+            <td>${u.nombre} ${u.apellido}</td>
+            <td>${u.correo}</td>
+            <td><span class="badge bg-${getRolColor(u.rol)}">${u.rol}</span></td>
+            <td>${new Date(u.creado_al).toLocaleDateString('es-PE')}</td>
+            <td>
+              ${u.rol !== 'super' ? `
+                <button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              ` : ''}
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    function getRolColor(rol) {
+      const colores = { super: "danger", admin: "warning", cliente: "success", proveedor: "info", reporte: "secondary" };
+      return colores[rol] || "secondary";
+    }
+
+    async function eliminarUsuario(id) {
+      if (!confirm("¿Eliminar este usuario?")) return;
+
+      try {
+        await api(`/api/usuarios/${id}`, { method: "DELETE" });
+        cargarUsuarios();
+      } catch (err) {
+        alert("Error al eliminar");
+      }
+    }
+
+    // ── Formularios ───────────────────────────────────
+    function configurarFormularios() {
+      // Solicitud
+      document.getElementById("formSolicitud").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          await api("/api/solicitudes", {
+            method: "POST",
+            body: {
+              editorial_id: document.getElementById("sol-editorial").value,
+              titulo: document.getElementById("sol-titulo").value,
+              autor: document.getElementById("sol-autor").value,
+              anio: document.getElementById("sol-anio").value || null,
+              precio: parseFloat(document.getElementById("sol-precio").value),
+              monto_derechos: parseFloat(document.getElementById("sol-monto").value),
+              descripcion: document.getElementById("sol-descripcion").value,
+              sinopsis: document.getElementById("sol-sinopsis").value,
+              observaciones: document.getElementById("sol-observaciones").value
+            }
+          });
+          bootstrap.Modal.getInstance(document.getElementById("modalSolicitud")).hide();
+          cargarSolicitudes();
+        } catch (err) {
+          alert("Error al crear solicitud");
+        }
+      });
+
+      // Libro
+      document.getElementById("formLibro").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append("editorial_id", document.getElementById("lib-editorial").value);
+        formData.append("titulo", document.getElementById("lib-titulo").value);
+        formData.append("autor", document.getElementById("lib-autor").value);
+        formData.append("anio", document.getElementById("lib-anio").value);
+        formData.append("precio", document.getElementById("lib-precio").value);
+        formData.append("sinopsis", document.getElementById("lib-sinopsis").value);
+
+        try {
+          await api("/api/libros", {
+            method: "POST",
+            body: formData,
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          bootstrap.Modal.getInstance(document.getElementById("modalLibro")).hide();
+          cargarLibros();
+        } catch (err) {
+          alert("Error al crear libro");
+        }
+      });
+
+      // Editorial
+      document.getElementById("formEditorial").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          await api("/api/editoriales", {
+            method: "POST",
+            body: {
+              nombre: document.getElementById("ed-nombre").value,
+              correo_contacto: document.getElementById("ed-correo").value
+            }
+          });
+          bootstrap.Modal.getInstance(document.getElementById("modalEditorial")).hide();
+          cargarEditoriales();
+        } catch (err) {
+          alert("Error al crear editorial");
+        }
+      });
+    }
+
+    async function cargarEditorialesSelect() {
+      try {
+        const data = await api("/api/editoriales");
+        const options = data.editoriales.map(e => `<option value="${e.id}">${e.nombre}</option>`).join("");
+        document.getElementById("sol-editorial").innerHTML = '<option value="">Seleccionar...</option>' + options;
+        document.getElementById("lib-editorial").innerHTML = '<option value="">Seleccionar...</option>' + options;
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    }
+
+    function abrirModalNuevaSolicitud() {
+      cargarEditorialesSelect();
+      document.getElementById("formSolicitud").reset();
+      new bootstrap.Modal(document.getElementById("modalSolicitud")).show();
+    }
+
+    function abrirModalNuevoLibro() {
+      cargarEditorialesSelect();
+      document.getElementById("formLibro").reset();
+      new bootstrap.Modal(document.getElementById("modalLibro")).show();
+    }
+
+    function abrirModalNuevaEditorial() {
+      document.getElementById("formEditorial").reset();
+      new bootstrap.Modal(document.getElementById("modalEditorial")).show();
+    }
+
+    function subirArchivos(solicitudId) {
+      alert("Función de carga de archivos para solicitud: " + solicitudId);
+      // TODO: Implementar modal de carga de archivos
+    }
+
+    function logout() {
+      sessionStorage.removeItem("user");
+      window.location.href = "login.html";
+    }
+  </script>
 </body>
 </html>
