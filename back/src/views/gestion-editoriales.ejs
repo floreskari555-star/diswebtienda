@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Editoriales - DisWebTienda</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card { box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .table th { background-color: #343a40; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 class="mb-0">Gestión de Editoriales</h1>
+        <p class="text-muted mb-0">Solo para desarrollo - <code>/gestion/editoriales</code></p>
+      </div>
+      <div>
+        <a href="/gestion" class="btn btn-outline-secondary me-2">
+          <i class="bi bi-arrow-left me-1"></i>Usuarios
+        </a>
+        <a href="/gestion/libros" class="btn btn-outline-primary">
+          <i class="bi bi-book me-1"></i>Libros
+        </a>
+      </div>
+    </div>
+
+    <% if (mensaje) { %>
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= mensaje %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= error %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <div class="row">
+      <!-- Formulario de registro -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Registrar Editorial</h5>
+          </div>
+          <div class="card-body">
+            <form action="/gestion/editoriales/registro" method="POST">
+              <div class="mb-3">
+                <label class="form-label">Nombre *</label>
+                <input type="text" class="form-control" name="nombre" required placeholder="Ej: Editorial Planeta">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Correo de contacto</label>
+                <input type="email" class="form-control" name="correo_contacto" placeholder="contacto@editorial.com">
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Registrar Editorial</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="card mt-3">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle me-1"></i>Información</h5>
+          </div>
+          <div class="card-body">
+            <p class="small mb-0">
+              Las editoriales se utilizan para categorizar los libros en el catálogo.
+              No se puede eliminar una editorial que tenga libros asociados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de editoriales -->
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Editoriales Registradas (<%= editoriales.length %>)</h5>
+          </div>
+          <div class="card-body">
+            <% if (editoriales.length === 0) { %>
+              <div class="text-center py-4 text-muted">
+                <i class="bi bi-building display-4"></i>
+                <p class="mt-2">No hay editoriales registradas</p>
+              </div>
+            <% } else { %>
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo de contacto</th>
+                      <th>Fecha de creación</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% editoriales.forEach(function(editorial) { %>
+                      <tr>
+                        <td><strong><%= editorial.nombre %></strong></td>
+                        <td><%= editorial.correo_contacto || '-' %></td>
+                        <td><%= new Date(editorial.creado_el).toLocaleDateString('es-PE') %></td>
+                        <td>
+                          <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal"
+                            data-id="<%= editorial.id %>"
+                            data-nombre="<%= editorial.nombre %>"
+                            data-correo-contacto="<%= editorial.correo_contacto || '' %>">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <form action="/gestion/editoriales/eliminar/<%= editorial.id %>" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta editorial?')">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edición -->
+  <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editarForm" method="POST">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title" id="editarModalLabel">Editar Editorial</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="editId" name="id">
+            
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="editNombre" name="nombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo de contacto</label>
+              <input type="email" class="form-control" id="editCorreoContacto" name="correo_contacto">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    const editarModal = document.getElementById('editarModal');
+    editarModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      
+      document.getElementById('editId').value = button.getAttribute('data-id');
+      document.getElementById('editNombre').value = button.getAttribute('data-nombre');
+      document.getElementById('editCorreoContacto').value = button.getAttribute('data-correo-contacto');
+
+      document.getElementById('editarForm').action = '/gestion/editoriales/actualizar/' + button.getAttribute('data-id');
+    });
+  </script>
+</body>
+</html>

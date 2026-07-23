@@ -442,4 +442,184 @@ router.post("/gestion/libros/eliminar/:id", async (req, res) => {
   }
 });
 
+// ═════════════════════════════════════════════════════
+// ── GESTIÓN DE EDITORIALES ──────────────────────────
+// ═════════════════════════════════════════════════════
+
+// ── Página de gestión de editoriales ─────────────────
+router.get("/gestion/editoriales", async (req, res) => {
+  console.log("🌐 [GESTION] Cargando gestión de editoriales");
+
+  try {
+    const { data: editoriales, error } = await supabaseAdmin
+      .from("editoriales")
+      .select("*")
+      .order("nombre");
+
+    if (error) {
+      console.log("❌ [GESTION] Error al obtener editoriales:", error.message);
+    }
+
+    res.render("gestion-editoriales", { 
+      editoriales: editoriales || [],
+      mensaje: req.query.mensaje || null,
+      error: req.query.error || null
+    });
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.render("gestion-editoriales", { 
+      editoriales: [], 
+      mensaje: null, 
+      error: "Error al cargar editoriales" 
+    });
+  }
+});
+
+// ── Registrar editorial desde el formulario ──────────
+router.post("/gestion/editoriales/registro", async (req, res) => {
+  console.log("📝 [GESTION] Registro de editorial desde formulario");
+
+  const { nombre, correo_contacto } = req.body;
+
+  try {
+    if (!nombre) {
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("El nombre es obligatorio"));
+    }
+
+    // Verificar que no exista
+    const { data: existe } = await supabaseAdmin
+      .from("editoriales")
+      .select("id")
+      .ilike("nombre", nombre)
+      .single();
+
+    if (existe) {
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Ya existe una editorial con ese nombre"));
+    }
+
+    const { error } = await supabaseAdmin
+      .from("editoriales")
+      .insert({
+        nombre,
+        correo_contacto: correo_contacto || ""
+      });
+
+    if (error) {
+      console.log("❌ [GESTION] Error al crear editorial:", error.message);
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Editorial creada:", nombre);
+
+    res.redirect("/gestion/editoriales?mensaje=" + encodeURIComponent("Editorial creada exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Error al crear editorial"));
+  }
+});
+
+// ── Actualizar editorial desde el formulario ─────────
+router.post("/gestion/editoriales/actualizar/:id", async (req, res) => {
+  console.log("✏️ [GESTION] Actualizar editorial:", req.params.id);
+
+  const { id } = req.params;
+  const { nombre, correo_contacto } = req.body;
+
+  try {
+    // Verificar que existe
+    const { data: existe } = await supabaseAdmin
+      .from("editoriales")
+      .select("id")
+      .eq("id", id)
+      .single();
+
+    if (!existe) {
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Editorial no encontrada"));
+    }
+
+    // Verificar nombre duplicado
+    if (nombre) {
+      const { data: nombreExiste } = await supabaseAdmin
+        .from("editoriales")
+        .select("id")
+        .ilike("nombre", nombre)
+        .neq("id", id)
+        .single();
+
+      if (nombreExiste) {
+        return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Ya existe otra editorial con ese nombre"));
+      }
+    }
+
+    const { error } = await supabaseAdmin
+      .from("editoriales")
+      .update({
+        nombre,
+        correo_contacto: correo_contacto || ""
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.log("❌ [GESTION] Error al actualizar:", error.message);
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Editorial actualizada:", id);
+
+    res.redirect("/gestion/editoriales?mensaje=" + encodeURIComponent("Editorial actualizada exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Error al actualizar editorial"));
+  }
+});
+
+// ── Eliminar editorial desde el formulario ───────────
+router.post("/gestion/editoriales/eliminar/:id", async (req, res) => {
+  console.log("🗑️ [GESTION] Eliminar editorial:", req.params.id);
+
+  const { id } = req.params;
+
+  try {
+    // Verificar que existe
+    const { data: existe } = await supabaseAdmin
+      .from("editoriales")
+      .select("id, nombre")
+      .eq("id", id)
+      .single();
+
+    if (!existe) {
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Editorial no encontrada"));
+    }
+
+    // Verificar que no haya libros asociados
+    const { data: librosAsociados } = await supabaseAdmin
+      .from("libros")
+      .select("id")
+      .eq("editorial_id", id)
+      .limit(1);
+
+    if (librosAsociados && librosAsociados.length > 0) {
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent("No se puede eliminar: tiene libros asociados"));
+    }
+
+    // Eliminar editorial
+    const { error } = await supabaseAdmin
+      .from("editoriales")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.log("❌ [GESTION] Error al eliminar:", error.message);
+      return res.redirect("/gestion/editoriales?error=" + encodeURIComponent(error.message));
+    }
+
+    console.log("✅ [GESTION] Editorial eliminada:", existe.nombre);
+
+    res.redirect("/gestion/editoriales?mensaje=" + encodeURIComponent("Editorial eliminada exitosamente"));
+  } catch (err) {
+    console.log("❌ [GESTION] Error inesperado:", err.message);
+    res.redirect("/gestion/editoriales?error=" + encodeURIComponent("Error al eliminar editorial"));
+  }
+});
+
 module.exports = router;

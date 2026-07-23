@@ -69,6 +69,15 @@ const options = {
             }
           }
         },
+        Editorial: {
+          type: "object",
+          properties: {
+            id: { type: "string", format: "uuid" },
+            nombre: { type: "string", example: "Editorial Planeta" },
+            correo_contacto: { type: "string", format: "email", example: "contacto@planeta.com" },
+            creado_el: { type: "string", format: "date-time" }
+          }
+        },
         Error: {
           type: "object",
           properties: {
@@ -530,6 +539,126 @@ const options = {
           responses: {
             200: { description: "Libro eliminado" },
             404: { description: "Libro no encontrado" }
+          }
+        }
+      },
+
+      // ── Editoriales (CRUD) ─────────────────────────
+      "/api/editoriales": {
+        get: {
+          tags: ["Editoriales"],
+          summary: "Listar todas las editoriales",
+          description: "Retorna la lista de editoriales ordenadas por nombre.",
+          responses: {
+            200: {
+              description: "Lista de editoriales",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      total: { type: "integer" },
+                      editoriales: { type: "array", items: { "$ref": "#/components/schemas/Editorial" } }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        post: {
+          tags: ["Editoriales"],
+          summary: "Crear nueva editorial",
+          description: "Requiere rol de admin o super.",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["nombre"],
+                  properties: {
+                    nombre: { type: "string", example: "Editorial Planeta" },
+                    correo_contacto: { type: "string", format: "email", example: "contacto@planeta.com" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            201: { description: "Editorial creada exitosamente" },
+            400: { description: "Datos inválidos o nombre duplicado" },
+            401: { description: "No autenticado" },
+            403: { description: "No autorizado (se requiere admin o super)" }
+          }
+        }
+      },
+
+      "/api/editoriales/{id}": {
+        get: {
+          tags: ["Editoriales"],
+          summary: "Obtener editorial por ID",
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: {
+              description: "Editorial encontrada",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      editorial: { "$ref": "#/components/schemas/Editorial" }
+                    }
+                  }
+                }
+              }
+            },
+            404: { description: "Editorial no encontrada" }
+          }
+        },
+        put: {
+          tags: ["Editoriales"],
+          summary: "Actualizar editorial",
+          description: "Requiere rol de admin o super.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    nombre: { type: "string" },
+                    correo_contacto: { type: "string", format: "email" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: { description: "Editorial actualizada" },
+            400: { description: "Nombre duplicado" },
+            404: { description: "Editorial no encontrada" }
+          }
+        },
+        delete: {
+          tags: ["Editoriales"],
+          summary: "Eliminar editorial",
+          description: "Requiere rol de admin o super. No se puede eliminar si tiene libros asociados.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }
+          ],
+          responses: {
+            200: { description: "Editorial eliminada" },
+            400: { description: "Tiene libros asociados" },
+            404: { description: "Editorial no encontrada" }
           }
         }
       }

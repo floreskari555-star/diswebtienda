@@ -14,6 +14,7 @@ const healthRoutes = require("./routes/healthRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const bookRoutes = require("./routes/bookRoutes");
+const editorialRoutes = require("./routes/editorialRoutes");
 const gestionRoutes = require("./routes/gestionRoutes");
 
 const app = express();
@@ -64,6 +65,7 @@ app.use(healthRoutes);       // GET /health
 app.use("/api", authRoutes); // POST /api/auth/*
 app.use("/api", userRoutes); // GET/PUT/DELETE /api/usuarios/*
 app.use("/api", bookRoutes); // GET/POST/PUT/DELETE /api/libros/*
+app.use("/api", editorialRoutes); // GET/POST/PUT/DELETE /api/editoriales/*
 app.use(gestionRoutes);      // GET/POST /gestion/*
 
 // ── Swagger UI ───────────────────────────────────────
