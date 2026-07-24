@@ -6,7 +6,8 @@ const {
   listarUsuarios, 
   obtenerUsuario, 
   actualizarUsuario, 
-  eliminarUsuario 
+  eliminarUsuario,
+  proveedoresSinEditorial
 } = require("../controllers/userController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
@@ -16,6 +17,9 @@ router.use(authorize("super", "admin"));
 
 // Listar todos los usuarios
 router.get("/usuarios", listarUsuarios);
+
+// Proveedores sin editorial (para notificaciones)
+router.get("/usuarios/proveedores-sin-editorial", proveedoresSinEditorial);
 
 // Obtener usuario por ID
 router.get("/usuarios/:id", obtenerUsuario);

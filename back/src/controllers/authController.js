@@ -173,7 +173,8 @@ const login = async (req, res) => {
         email: data.user.email,
         nombre: perfil.nombre,
         apellido: perfil.apellido,
-        rol: perfil.rol
+        rol: perfil.rol,
+        editorial_id: perfil.editorial_id || null
       },
       session: {
         access_token: data.session.access_token,

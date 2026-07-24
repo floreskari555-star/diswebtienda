@@ -61,7 +61,7 @@ const actualizarUsuario = async (req, res) => {
   console.log("✏️ [USUARIOS] Actualizar usuario:", req.params.id);
 
   const { id } = req.params;
-  const { nombre, apellido, telefono, direccion, rol } = req.body;
+  const { nombre, apellido, telefono, direccion, rol, editorial_id } = req.body;
 
   try {
     // Verificar que el usuario existe
@@ -77,16 +77,25 @@ const actualizarUsuario = async (req, res) => {
     }
 
     // Actualizar usuario
+    const updates = {
+      nombre,
+      apellido,
+      telefono,
+      direccion,
+      rol,
+      actualizado_al: new Date().toISOString()
+    };
+
+    // Asociar editorial solo para proveedores
+    if (rol === "proveedor" && editorial_id) {
+      updates.editorial_id = editorial_id;
+    } else if (rol !== "proveedor") {
+      updates.editorial_id = null;
+    }
+
     const { data: usuario, error } = await supabaseAdmin
       .from("perfiles")
-      .update({
-        nombre,
-        apellido,
-        telefono,
-        direccion,
-        rol,
-        actualizado_al: new Date().toISOString()
-      })
+      .update(updates)
       .eq("id", id)
       .select()
       .single();
@@ -105,6 +114,35 @@ const actualizarUsuario = async (req, res) => {
   } catch (err) {
     console.log("❌ [USUARIOS] Error inesperado:", err.message);
     return res.status(500).json({ error: "Error al actualizar usuario" });
+  }
+};
+
+// ── Proveedores sin editorial asociada ────────────────
+const proveedoresSinEditorial = async (req, res) => {
+  console.log("📋 [USUARIOS] Proveedores sin editorial");
+
+  try {
+    const { data: proveedores, error } = await supabaseAdmin
+      .from("perfiles")
+      .select("id, email, nombre, apellido, creado_al")
+      .eq("rol", "proveedor")
+      .is("editorial_id", null)
+      .order("creado_al", { ascending: false });
+
+    if (error) {
+      console.log("❌ [USUARIOS] Error al listar:", error.message);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log("✅ [USUARIOS] Proveedores sin editorial:", proveedores.length);
+
+    res.json({
+      total: proveedores.length,
+      proveedores
+    });
+  } catch (err) {
+    console.log("❌ [USUARIOS] Error inesperado:", err.message);
+    return res.status(500).json({ error: "Error al listar proveedores" });
   }
 };
 
@@ -157,5 +195,6 @@ module.exports = {
   listarUsuarios,
   obtenerUsuario,
   actualizarUsuario,
-  eliminarUsuario
+  eliminarUsuario,
+  proveedoresSinEditorial
 };

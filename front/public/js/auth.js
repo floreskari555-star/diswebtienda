@@ -66,6 +66,7 @@ function configurarFormularioLogin() {
         nombre: data.usuario.nombre,
         apellido: data.usuario.apellido,
         rol: data.usuario.rol,
+        editorial_id: data.usuario.editorial_id || null,
         token: data.session.access_token
       };
 

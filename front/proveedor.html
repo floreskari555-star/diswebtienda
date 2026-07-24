@@ -167,7 +167,8 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Editorial *</label>
-                    <select class="form-select" id="ns-editorial" required></select>
+                    <input type="text" class="form-control" id="ns-editorial" readonly placeholder="Tu editorial asignada">
+                    <input type="hidden" id="ns-editorial-id">
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Título del Libro *</label>
@@ -295,9 +296,19 @@
         return;
       }
 
+      // Obtener nombre de editorial si tiene una asociada
+      let editorialNombre = "Sin asignar";
+      if (usuario.editorial_id) {
+        try {
+          const edData = await api(`/api/editoriales/${usuario.editorial_id}`);
+          if (edData.editorial) editorialNombre = edData.editorial.nombre;
+        } catch (e) { console.error(e); }
+      }
+
       document.getElementById("user-info").innerHTML = `
         <strong>${usuario.nombre} ${usuario.apellido}</strong><br>
-        <span class="badge bg-info">${usuario.rol}</span>
+        <span class="badge bg-info">${usuario.rol}</span><br>
+        <small class="mt-1 d-block"><i class="bi bi-building me-1"></i>${editorialNombre}</small>
       `;
 
       configurarTabs();
@@ -447,20 +458,36 @@
 
     // ── Formularios ───────────────────────────────────
     function configurarFormularios() {
-      // Cargar editoriales
-      api("/api/editoriales").then(data => {
-        const options = data.editoriales.map(e => `<option value="${e.id}">${e.nombre}</option>`).join("");
-        document.getElementById("ns-editorial").innerHTML = '<option value="">Seleccionar editorial...</option>' + options;
-      });
+      // Cargar editorial del proveedor
+      const usuario = JSON.parse(sessionStorage.getItem("user"));
+      if (usuario && usuario.editorial_id) {
+        api(`/api/editoriales/${usuario.editorial_id}`).then(data => {
+          if (data.editorial) {
+            document.getElementById("ns-editorial").value = data.editorial.nombre;
+            document.getElementById("ns-editorial-id").value = data.editorial.id;
+          }
+        }).catch(err => console.error(err));
+      } else {
+        document.getElementById("ns-editorial").value = "Sin editorial asignada";
+        document.getElementById("ns-editorial").classList.add("is-invalid");
+      }
 
       // Nueva solicitud
       document.getElementById("formNuevaSolicitud").addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+        // Verificar que el proveedor tenga editorial asociada
+        const usuario = JSON.parse(sessionStorage.getItem("user"));
+        if (!usuario || !usuario.editorial_id) {
+          alert("No tienes una editorial asociada. Contacta al administrador.");
+          return;
+        }
+        
         try {
           await api("/api/solicitudes", {
             method: "POST",
             body: {
-              editorial_id: document.getElementById("ns-editorial").value,
+              editorial_id: usuario.editorial_id,
               titulo: document.getElementById("ns-titulo").value,
               autor: document.getElementById("ns-autor").value,
               anio: document.getElementById("ns-anio").value || null,

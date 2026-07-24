@@ -331,6 +331,12 @@
                 <option value="super">Super</option>
               </select>
             </div>
+            <div class="mb-3" id="eu-editorial-container" style="display:none;">
+              <label class="form-label">Editorial Asociada *</label>
+              <select class="form-select" id="eu-editorial">
+                <option value="">-- Seleccionar Editorial --</option>
+              </select>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -424,6 +430,7 @@
       cargarDashboard();
       configurarTabs();
       configurarFormularios();
+      verificarProveedoresSinEditorial();
     });
 
     function configurarTabs() {
@@ -604,7 +611,7 @@
             <td><span class="badge bg-${getRolColor(u.rol)}">${u.rol}</span></td>
             <td>${new Date(u.creado_al).toLocaleDateString('es-PE')}</td>
             <td>
-              ${u.rol!=='super' ? `<button class="btn btn-warning btn-sm" onclick="editarUsuario('${u.id}','${u.nombre}','${u.apellido}','${u.telefono||''}','${u.direccion||''}','${u.rol}')"><i class="bi bi-pencil"></i></button>` : ''}
+              ${u.rol!=='super' ? `<button class="btn btn-warning btn-sm" onclick="editarUsuario('${u.id}','${u.nombre}','${u.apellido}','${u.telefono||''}','${u.direccion||''}','${u.rol}','${u.editorial_id||''}')"><i class="bi bi-pencil"></i></button>` : ''}
               ${u.rol!=='super' ? `<button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}')"><i class="bi bi-trash"></i></button>` : ''}
             </td>
           </tr>`).join("");
@@ -613,13 +620,24 @@
 
     function getRolColor(r) { return { super:"danger", admin:"warning", cliente:"success", proveedor:"info", reporte:"secondary" }[r] || "secondary"; }
 
-    function editarUsuario(id, nombre, apellido, telefono, direccion, rol) {
+    function editarUsuario(id, nombre, apellido, telefono, direccion, rol, editorialId) {
       document.getElementById("eu-id").value = id;
       document.getElementById("eu-nombre").value = nombre;
       document.getElementById("eu-apellido").value = apellido;
       document.getElementById("eu-telefono").value = telefono;
       document.getElementById("eu-direccion").value = direccion;
       document.getElementById("eu-rol").value = rol;
+      
+      // Mostrar/ocultar combo de editorial según rol
+      const editorialContainer = document.getElementById("eu-editorial-container");
+      if (rol === "proveedor") {
+        editorialContainer.style.display = "block";
+        cargarEditorialesSelect("eu-editorial", editorialId);
+      } else {
+        editorialContainer.style.display = "none";
+        document.getElementById("eu-editorial").value = "";
+      }
+      
       new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
     }
 
@@ -731,18 +749,50 @@
       document.getElementById("formEditarUsuario").addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById("eu-id").value;
+        const rol = document.getElementById("eu-rol").value;
+        const body = {
+          nombre: document.getElementById("eu-nombre").value,
+          apellido: document.getElementById("eu-apellido").value,
+          telefono: document.getElementById("eu-telefono").value,
+          direccion: document.getElementById("eu-direccion").value,
+          rol: rol
+        };
+        if (rol === "proveedor") {
+          body.editorial_id = document.getElementById("eu-editorial").value || null;
+        }
         try {
-          await api(`/api/usuarios/${id}`, { method: "PUT", body: {
-            nombre: document.getElementById("eu-nombre").value,
-            apellido: document.getElementById("eu-apellido").value,
-            telefono: document.getElementById("eu-telefono").value,
-            direccion: document.getElementById("eu-direccion").value,
-            rol: document.getElementById("eu-rol").value
-          }});
+          await api(`/api/usuarios/${id}`, { method: "PUT", body });
           bootstrap.Modal.getInstance(document.getElementById("modalEditarUsuario")).hide();
           cargarUsuarios();
         } catch (err) { alert("Error"); }
       });
+    }
+
+    // Mostrar/ocultar editorial según rol en tiempo real
+    document.getElementById("eu-rol").addEventListener("change", function() {
+      const editorialContainer = document.getElementById("eu-editorial-container");
+      if (this.value === "proveedor") {
+        editorialContainer.style.display = "block";
+        cargarEditorialesSelect("eu-editorial");
+      } else {
+        editorialContainer.style.display = "none";
+      }
+    });
+
+    // Notificación de proveedores sin editorial
+    async function verificarProveedoresSinEditorial() {
+      try {
+        const data = await api("/api/usuarios/proveedores-sin-editorial");
+        if (data.total > 0) {
+          const badge = document.createElement("span");
+          badge.className = "badge bg-danger ms-2";
+          badge.textContent = data.total;
+          const navLink = document.querySelector('[data-tab="usuarios"]');
+          if (navLink && !navLink.querySelector(".badge")) {
+            navLink.appendChild(badge);
+          }
+        }
+      } catch (err) { console.error(err); }
     }
 
     function abrirModalNuevaSolicitud() { cargarEditorialesSelect("sol-editorial"); document.getElementById("formSolicitud").reset(); new bootstrap.Modal(document.getElementById("modalSolicitud")).show(); }

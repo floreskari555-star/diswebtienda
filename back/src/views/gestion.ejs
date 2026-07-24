@@ -141,7 +141,8 @@
                           data-correo="<%= usuario.correo %>"
                           data-telefono="<%= usuario.telefono || '' %>"
                           data-direccion="<%= usuario.direccion || '' %>"
-                          data-rol="<%= usuario.rol %>">
+                          data-rol="<%= usuario.rol %>"
+                          data-editorial-id="<%= usuario.editorial_id || '' %>">
                           Editar
                         </button>
                         <% if (usuario.rol !== 'super') { %>
@@ -204,6 +205,12 @@
                 <option value="super">Super</option>
               </select>
             </div>
+            <div class="mb-3" id="editEditorialContainer" style="display:none;">
+              <label class="form-label">Editorial Asociada *</label>
+              <select class="form-select" id="editEditorial" name="editorial_id">
+                <option value="">-- Seleccionar Editorial --</option>
+              </select>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -217,6 +224,24 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
+    // Cargar editoriales para el select
+    async function cargarEditoriales() {
+      try {
+        const response = await fetch('/api/editoriales');
+        const data = await response.json();
+        const select = document.getElementById('editEditorial');
+        if (data.editoriales) {
+          data.editoriales.forEach(ed => {
+            const option = document.createElement('option');
+            option.value = ed.id;
+            option.textContent = ed.nombre;
+            select.appendChild(option);
+          });
+        }
+      } catch (err) { console.error(err); }
+    }
+    cargarEditoriales();
+
     // Cuando se hace clic en "Editar", llenar el modal con los datos del usuario
     const editarModal = document.getElementById('editarModal');
     editarModal.addEventListener('show.bs.modal', function (event) {
@@ -228,6 +253,7 @@
       const telefono = button.getAttribute('data-telefono');
       const direccion = button.getAttribute('data-direccion');
       const rol = button.getAttribute('data-rol');
+      const editorialId = button.getAttribute('data-editorial-id') || '';
 
       document.getElementById('editId').value = id;
       document.getElementById('editNombre').value = nombre;
@@ -237,8 +263,27 @@
       document.getElementById('editDireccion').value = direccion;
       document.getElementById('editRol').value = rol;
 
+      // Mostrar/ocultar editorial según rol
+      const editorialContainer = document.getElementById('editEditorialContainer');
+      if (rol === 'proveedor') {
+        editorialContainer.style.display = 'block';
+        document.getElementById('editEditorial').value = editorialId;
+      } else {
+        editorialContainer.style.display = 'none';
+      }
+
       // Actualizar la acción del formulario
       document.getElementById('editarForm').action = '/gestion/actualizar/' + id;
+    });
+
+    // Actualizar visibility de editorial cuando cambia el rol
+    document.getElementById('editRol').addEventListener('change', function() {
+      const editorialContainer = document.getElementById('editEditorialContainer');
+      if (this.value === 'proveedor') {
+        editorialContainer.style.display = 'block';
+      } else {
+        editorialContainer.style.display = 'none';
+      }
     });
   </script>
 </body>

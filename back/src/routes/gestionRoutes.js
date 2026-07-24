@@ -84,7 +84,7 @@ router.post("/gestion/actualizar/:id", async (req, res) => {
   console.log("✏️ [GESTION] Actualizar usuario:", req.params.id);
 
   const { id } = req.params;
-  const { nombre, apellido, telefono, direccion, rol } = req.body;
+  const { nombre, apellido, telefono, direccion, rol, editorial_id } = req.body;
 
   try {
     // Verificar que el usuario existe
@@ -98,17 +98,27 @@ router.post("/gestion/actualizar/:id", async (req, res) => {
       return res.redirect("/gestion?error=" + encodeURIComponent("Usuario no encontrado"));
     }
 
+    // Preparar datos de actualización
+    const updates = {
+      nombre,
+      apellido,
+      telefono: telefono || "",
+      direccion: direccion || "",
+      rol,
+      actualizado_al: new Date().toISOString()
+    };
+
+    // Asociar editorial solo para proveedores
+    if (rol === "proveedor" && editorial_id) {
+      updates.editorial_id = editorial_id;
+    } else if (rol !== "proveedor") {
+      updates.editorial_id = null;
+    }
+
     // Actualizar perfil en la tabla perfiles
     const { error: updateError } = await supabaseAdmin
       .from("perfiles")
-      .update({
-        nombre,
-        apellido,
-        telefono: telefono || "",
-        direccion: direccion || "",
-        rol,
-        actualizado_al: new Date().toISOString()
-      })
+      .update(updates)
       .eq("id", id);
 
     if (updateError) {
