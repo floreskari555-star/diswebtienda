@@ -22,7 +22,6 @@
 <body>
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
       <nav class="col-md-2 sidebar p-0">
         <div class="p-3 text-white">
           <h5 class="mb-0"><i class="bi bi-book-half me-2"></i>DisWebTienda</h5>
@@ -30,47 +29,20 @@
         </div>
         <hr class="text-white my-0" style="opacity: 0.2;">
         <ul class="nav flex-column p-2">
-          <li class="nav-item">
-            <a class="nav-link active" href="#" data-tab="dashboard">
-              <i class="bi bi-speedometer2 me-2"></i>Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" data-tab="solicitudes">
-              <i class="bi bi-file-earmark-text me-2"></i>Solicitudes
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" data-tab="pagos">
-              <i class="bi bi-credit-card me-2"></i>Pagos
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" data-tab="libros">
-              <i class="bi bi-book me-2"></i>Libros
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" data-tab="editoriales">
-              <i class="bi bi-building me-2"></i>Editoriales
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" data-tab="usuarios">
-              <i class="bi bi-people me-2"></i>Usuarios
-            </a>
-          </li>
+          <li class="nav-item"><a class="nav-link active" href="#" data-tab="dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-tab="solicitudes"><i class="bi bi-file-earmark-text me-2"></i>Solicitudes</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-tab="pagos"><i class="bi bi-credit-card me-2"></i>Pagos</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-tab="libros"><i class="bi bi-book me-2"></i>Libros</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-tab="editoriales"><i class="bi bi-building me-2"></i>Editoriales</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-tab="usuarios"><i class="bi bi-people me-2"></i>Usuarios</a></li>
         </ul>
         <hr class="text-white my-0" style="opacity: 0.2;">
         <div class="p-3">
           <div class="text-white-50 small" id="user-info"></div>
-          <button class="btn btn-outline-light btn-sm w-100 mt-2" onclick="logout()">
-            <i class="bi bi-box-arrow-left me-1"></i>Cerrar Sesión
-          </button>
+          <button class="btn btn-outline-light btn-sm w-100 mt-2" onclick="logout()"><i class="bi bi-box-arrow-left me-1"></i>Cerrar Sesión</button>
         </div>
       </nav>
 
-      <!-- Contenido principal -->
       <main class="col-md-10 main-content p-4">
         <!-- Dashboard -->
         <div id="tab-dashboard" class="tab-content">
@@ -80,10 +52,7 @@
               <div class="card stat-card" style="border-color: var(--accent-color);">
                 <div class="card-body">
                   <div class="d-flex justify-content-between">
-                    <div>
-                      <h6 class="text-muted mb-1">Solicitudes Pendientes</h6>
-                      <h3 id="stat-solicitudes" class="mb-0">-</h3>
-                    </div>
+                    <div><h6 class="text-muted mb-1">Solicitudes Pendientes</h6><h3 id="stat-solicitudes" class="mb-0">-</h3></div>
                     <i class="bi bi-file-earmark-text fs-1 text-muted"></i>
                   </div>
                 </div>
@@ -93,10 +62,7 @@
               <div class="card stat-card" style="border-color: #ffc107;">
                 <div class="card-body">
                   <div class="d-flex justify-content-between">
-                    <div>
-                      <h6 class="text-muted mb-1">Pagos Pendientes</h6>
-                      <h3 id="stat-pagos" class="mb-0">-</h3>
-                    </div>
+                    <div><h6 class="text-muted mb-1">Pagos Pendientes</h6><h3 id="stat-pagos" class="mb-0">-</h3></div>
                     <i class="bi bi-credit-card fs-1 text-muted"></i>
                   </div>
                 </div>
@@ -106,10 +72,7 @@
               <div class="card stat-card" style="border-color: #198754;">
                 <div class="card-body">
                   <div class="d-flex justify-content-between">
-                    <div>
-                      <h6 class="text-muted mb-1">Libros Activos</h6>
-                      <h3 id="stat-libros" class="mb-0">-</h3>
-                    </div>
+                    <div><h6 class="text-muted mb-1">Libros Activos</h6><h3 id="stat-libros" class="mb-0">-</h3></div>
                     <i class="bi bi-book fs-1 text-muted"></i>
                   </div>
                 </div>
@@ -119,10 +82,7 @@
               <div class="card stat-card" style="border-color: #0dcaf0;">
                 <div class="card-body">
                   <div class="d-flex justify-content-between">
-                    <div>
-                      <h6 class="text-muted mb-1">Usuarios</h6>
-                      <h3 id="stat-usuarios" class="mb-0">-</h3>
-                    </div>
+                    <div><h6 class="text-muted mb-1">Usuarios</h6><h3 id="stat-usuarios" class="mb-0">-</h3></div>
                     <i class="bi bi-people fs-1 text-muted"></i>
                   </div>
                 </div>
@@ -130,12 +90,8 @@
             </div>
           </div>
           <div class="card">
-            <div class="card-header bg-dark text-white">
-              <h5 class="mb-0">Actividad Reciente</h5>
-            </div>
-            <div class="card-body">
-              <div id="actividad-reciente" class="text-muted">Cargando...</div>
-            </div>
+            <div class="card-header bg-dark text-white"><h5 class="mb-0">Actividad Reciente</h5></div>
+            <div class="card-body"><div id="actividad-reciente" class="text-muted">Cargando...</div></div>
           </div>
         </div>
 
@@ -143,146 +99,74 @@
         <div id="tab-solicitudes" class="tab-content d-none">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Solicitudes de Derechos</h2>
-            <button class="btn btn-primary" onclick="abrirModalNuevaSolicitud()">
-              <i class="bi bi-plus-circle me-1"></i>Nueva Solicitud
-            </button>
+            <button class="btn btn-primary" onclick="abrirModalNuevaSolicitud()"><i class="bi bi-plus-circle me-1"></i>Nueva Solicitud</button>
           </div>
-          <div class="card">
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Título</th>
-                      <th>Autor</th>
-                      <th>Editorial</th>
-                      <th>Precio</th>
-                      <th>Derechos</th>
-                      <th>Estado</th>
-                      <th>Fecha</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabla-solicitudes">
-                    <tr><td colspan="8" class="text-center text-muted">Cargando...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="card"><div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead><tr><th>Título</th><th>Autor</th><th>Editorial</th><th>Precio</th><th>Derechos</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-solicitudes"><tr><td colspan="8" class="text-center text-muted">Cargando...</td></tr></tbody>
+              </table>
             </div>
-          </div>
+          </div></div>
         </div>
 
         <!-- Pagos -->
         <div id="tab-pagos" class="tab-content d-none">
           <h2 class="mb-4">Pagos a Editoriales</h2>
-          <div class="card">
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Solicitud</th>
-                      <th>Editorial</th>
-                      <th>Monto</th>
-                      <th>Comprobante</th>
-                      <th>Estado</th>
-                      <th>Fecha</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabla-pagos">
-                    <tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="card"><div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead><tr><th>Solicitud</th><th>Editorial</th><th>Monto</th><th>Comprobante</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-pagos"><tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr></tbody>
+              </table>
             </div>
-          </div>
+          </div></div>
         </div>
 
         <!-- Libros -->
         <div id="tab-libros" class="tab-content d-none">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Libros</h2>
-            <button class="btn btn-primary" onclick="abrirModalNuevoLibro()">
-              <i class="bi bi-plus-circle me-1"></i>Nuevo Libro
-            </button>
+            <button class="btn btn-primary" onclick="abrirModalNuevoLibro()"><i class="bi bi-plus-circle me-1"></i>Nuevo Libro</button>
           </div>
-          <div class="card">
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Portada</th>
-                      <th>Título</th>
-                      <th>Autor</th>
-                      <th>Editorial</th>
-                      <th>Precio</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabla-libros">
-                    <tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="card"><div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead><tr><th>Portada</th><th>Título</th><th>Autor</th><th>Editorial</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-libros"><tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr></tbody>
+              </table>
             </div>
-          </div>
+          </div></div>
         </div>
 
         <!-- Editoriales -->
         <div id="tab-editoriales" class="tab-content d-none">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">Editoriales</h2>
-            <button class="btn btn-primary" onclick="abrirModalNuevaEditorial()">
-              <i class="bi bi-plus-circle me-1"></i>Nueva Editorial
-            </button>
+            <button class="btn btn-primary" onclick="abrirModalNuevaEditorial()"><i class="bi bi-plus-circle me-1"></i>Nueva Editorial</button>
           </div>
-          <div class="card">
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Correo</th>
-                      <th>Fecha</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabla-editoriales">
-                    <tr><td colspan="4" class="text-center text-muted">Cargando...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="card"><div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-editoriales"><tr><td colspan="4" class="text-center text-muted">Cargando...</td></tr></tbody>
+              </table>
             </div>
-          </div>
+          </div></div>
         </div>
 
         <!-- Usuarios -->
         <div id="tab-usuarios" class="tab-content d-none">
           <h2 class="mb-4">Usuarios</h2>
-          <div class="card">
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Correo</th>
-                      <th>Rol</th>
-                      <th>Registro</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabla-usuarios">
-                    <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
-                  </tbody>
-                </table>
-              </div>
+          <div class="card"><div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-usuarios"><tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr></tbody>
+              </table>
             </div>
-          </div>
+          </div></div>
         </div>
       </main>
     </div>
@@ -299,47 +183,180 @@
           </div>
           <div class="modal-body">
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Editorial *</label>
-                <select class="form-select" id="sol-editorial" required></select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Título *</label>
-                <input type="text" class="form-control" id="sol-titulo" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Autor *</label>
-                <input type="text" class="form-control" id="sol-autor" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Año</label>
-                <input type="number" class="form-control" id="sol-anio">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Precio (S/) *</label>
-                <input type="number" class="form-control" id="sol-precio" step="0.01" min="0" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Monto Derechos (S/) *</label>
-                <input type="number" class="form-control" id="sol-monto" step="0.01" min="0" required>
-              </div>
-              <div class="col-12 mb-3">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" id="sol-descripcion" rows="2"></textarea>
-              </div>
-              <div class="col-12 mb-3">
-                <label class="form-label">Sinopsis</label>
-                <textarea class="form-control" id="sol-sinopsis" rows="3"></textarea>
-              </div>
-              <div class="col-12 mb-3">
-                <label class="form-label">Observaciones</label>
-                <textarea class="form-control" id="sol-observaciones" rows="2"></textarea>
-              </div>
+              <div class="col-md-6 mb-3"><label class="form-label">Editorial *</label><select class="form-select" id="sol-editorial" required></select></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Título *</label><input type="text" class="form-control" id="sol-titulo" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Autor *</label><input type="text" class="form-control" id="sol-autor" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Año</label><input type="number" class="form-control" id="sol-anio"></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Precio (S/) *</label><input type="number" class="form-control" id="sol-precio" step="0.01" min="0" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Monto Derechos (S/) *</label><input type="number" class="form-control" id="sol-monto" step="0.01" min="0" required></div>
+              <div class="col-12 mb-3"><label class="form-label">Descripción</label><textarea class="form-control" id="sol-descripcion" rows="2"></textarea></div>
+              <div class="col-12 mb-3"><label class="form-label">Sinopsis</label><textarea class="form-control" id="sol-sinopsis" rows="3"></textarea></div>
+              <div class="col-12 mb-3"><label class="form-label">Observaciones</label><textarea class="form-control" id="sol-observaciones" rows="2"></textarea></div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-primary">Crear Solicitud</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Subir Archivos (Solicitud Aprobada) -->
+  <div class="modal fade" id="modalSubirArchivos" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formSubirArchivos" enctype="multipart/form-data">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title"><i class="bi bi-upload me-1"></i>Cargar Archivos del Libro</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="ua-solicitud-id">
+            <div class="alert alert-info mb-3" id="ua-info"></div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Portada (imagen) *</label>
+                <input type="file" class="form-control" name="portada" accept="image/*" required>
+                <small class="text-muted">Formato: PNG o JPG. Tamaño recomendado: 300x450px</small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Archivo PDF *</label>
+                <input type="file" class="form-control" name="archivo_pdf" accept=".pdf" required>
+                <small class="text-muted">Archivo completo del libro en formato PDF</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Subir y Publicar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Libro -->
+  <div class="modal fade" id="modalEditarLibro" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="formEditarLibro" enctype="multipart/form-data">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title"><i class="bi bi-pencil me-1"></i>Editar Libro</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="el-id">
+            <div class="row">
+              <div class="col-md-6 mb-3"><label class="form-label">Editorial *</label><select class="form-select" id="el-editorial" required></select></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Título *</label><input type="text" class="form-control" id="el-titulo" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Autor *</label><input type="text" class="form-control" id="el-autor" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Año</label><input type="number" class="form-control" id="el-anio"></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Precio (S/) *</label><input type="number" class="form-control" id="el-precio" step="0.01" min="0" required></div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" id="el-activo">
+                  <option value="true">Activo (visible)</option>
+                  <option value="false">Inactivo (oculto)</option>
+                </select>
+              </div>
+              <div class="col-12 mb-3"><label class="form-label">Sinopsis</label><textarea class="form-control" id="el-sinopsis" rows="2"></textarea></div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nueva Portada (opcional)</label>
+                <input type="file" class="form-control" name="portada" accept="image/*">
+                <small class="text-muted">Dejar vacío para mantener la actual</small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nuevo PDF (opcional)</label>
+                <input type="file" class="form-control" name="archivo_pdf" accept=".pdf">
+                <small class="text-muted">Dejar vacío para mantener el actual</small>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Editorial -->
+  <div class="modal fade" id="modalEditarEditorial" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditarEditorial">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title"><i class="bi bi-pencil me-1"></i>Editar Editorial</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="ee-id">
+            <div class="mb-3"><label class="form-label">Nombre *</label><input type="text" class="form-control" id="ee-nombre" required></div>
+            <div class="mb-3"><label class="form-label">Correo de contacto</label><input type="email" class="form-control" id="ee-correo"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Usuario -->
+  <div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditarUsuario">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title"><i class="bi bi-pencil me-1"></i>Editar Usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="eu-id">
+            <div class="mb-3"><label class="form-label">Nombre *</label><input type="text" class="form-control" id="eu-nombre" required></div>
+            <div class="mb-3"><label class="form-label">Apellido *</label><input type="text" class="form-control" id="eu-apellido" required></div>
+            <div class="mb-3"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="eu-telefono"></div>
+            <div class="mb-3"><label class="form-label">Dirección</label><input type="text" class="form-control" id="eu-direccion"></div>
+            <div class="mb-3">
+              <label class="form-label">Rol *</label>
+              <select class="form-select" id="eu-rol" required>
+                <option value="cliente">Cliente</option>
+                <option value="proveedor">Proveedor</option>
+                <option value="admin">Admin</option>
+                <option value="reporte">Reporte</option>
+                <option value="super">Super</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva Editorial -->
+  <div class="modal fade" id="modalEditorial" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formEditorial">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nueva Editorial</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Nombre *</label><input type="text" class="form-control" id="ed-nombre" required></div>
+            <div class="mb-3"><label class="form-label">Correo de contacto</label><input type="email" class="form-control" id="ed-correo"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear Editorial</button>
           </div>
         </form>
       </div>
@@ -357,71 +374,19 @@
           </div>
           <div class="modal-body">
             <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Editorial *</label>
-                <select class="form-select" id="lib-editorial" required></select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Título *</label>
-                <input type="text" class="form-control" id="lib-titulo" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Autor *</label>
-                <input type="text" class="form-control" id="lib-autor" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Año</label>
-                <input type="number" class="form-control" id="lib-anio">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Precio (S/) *</label>
-                <input type="number" class="form-control" id="lib-precio" step="0.01" min="0" required>
-              </div>
-              <div class="col-12 mb-3">
-                <label class="form-label">Sinopsis</label>
-                <textarea class="form-control" id="lib-sinopsis" rows="2"></textarea>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Portada (imagen)</label>
-                <input type="file" class="form-control" name="portada" accept="image/*">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Archivo PDF</label>
-                <input type="file" class="form-control" name="archivo_pdf" accept=".pdf">
-              </div>
+              <div class="col-md-6 mb-3"><label class="form-label">Editorial *</label><select class="form-select" id="lib-editorial" required></select></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Título *</label><input type="text" class="form-control" id="lib-titulo" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Autor *</label><input type="text" class="form-control" id="lib-autor" required></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Año</label><input type="number" class="form-control" id="lib-anio"></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Precio (S/) *</label><input type="number" class="form-control" id="lib-precio" step="0.01" min="0" required></div>
+              <div class="col-12 mb-3"><label class="form-label">Sinopsis</label><textarea class="form-control" id="lib-sinopsis" rows="2"></textarea></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Portada (imagen)</label><input type="file" class="form-control" name="portada" accept="image/*"></div>
+              <div class="col-md-6 mb-3"><label class="form-label">Archivo PDF</label><input type="file" class="form-control" name="archivo_pdf" accept=".pdf"></div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-primary">Crear Libro</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Nueva Editorial -->
-  <div class="modal fade" id="modalEditorial" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="formEditorial">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Nueva Editorial</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Nombre *</label>
-              <input type="text" class="form-control" id="ed-nombre" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Correo de contacto</label>
-              <input type="email" class="form-control" id="ed-correo">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Crear Editorial</button>
           </div>
         </form>
       </div>
@@ -446,50 +411,30 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="public/js/config.js"></script>
   <script>
-    // ── Variables globales ────────────────────────────
     let usuario = null;
     let token = null;
 
-    // ── Verificar autenticación ───────────────────────
     document.addEventListener("DOMContentLoaded", () => {
       const userData = sessionStorage.getItem("user");
-      if (!userData) {
-        window.location.href = "login.html";
-        return;
-      }
-
+      if (!userData) { window.location.href = "login.html"; return; }
       usuario = JSON.parse(userData);
       token = usuario.token;
-
-      if (!["super", "admin"].includes(usuario.rol)) {
-        alert("No tienes permisos de administrador");
-        window.location.href = "index.html";
-        return;
-      }
-
-      document.getElementById("user-info").innerHTML = `
-        <strong>${usuario.nombre} ${usuario.apellido}</strong><br>
-        <span class="badge bg-warning text-dark">${usuario.rol}</span>
-      `;
-
+      if (!["super", "admin"].includes(usuario.rol)) { alert("Sin permisos"); window.location.href = "index.html"; return; }
+      document.getElementById("user-info").innerHTML = `<strong>${usuario.nombre} ${usuario.apellido}</strong><br><span class="badge bg-warning text-dark">${usuario.rol}</span>`;
       cargarDashboard();
       configurarTabs();
       configurarFormularios();
     });
 
-    // ── Configurar navegación por tabs ────────────────
     function configurarTabs() {
       document.querySelectorAll("[data-tab]").forEach(link => {
         link.addEventListener("click", (e) => {
           e.preventDefault();
           const tab = link.dataset.tab;
-
           document.querySelectorAll("[data-tab]").forEach(l => l.classList.remove("active"));
           link.classList.add("active");
-
           document.querySelectorAll(".tab-content").forEach(t => t.classList.add("d-none"));
           document.getElementById("tab-" + tab).classList.remove("d-none");
-
           if (tab === "solicitudes") cargarSolicitudes();
           if (tab === "pagos") cargarPagos();
           if (tab === "libros") cargarLibros();
@@ -499,25 +444,10 @@
       });
     }
 
-    // ── API helper ────────────────────────────────────
     async function api(endpoint, options = {}) {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          ...options.headers
-        },
-        ...options
-      };
-
-      if (config.body && typeof config.body === "object" && !(config.body instanceof FormData)) {
-        config.body = JSON.stringify(config.body);
-      }
-
-      if (config.body instanceof FormData) {
-        delete config.headers["Content-Type"];
-      }
-
+      const config = { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, ...options.headers }, ...options };
+      if (config.body && typeof config.body === "object" && !(config.body instanceof FormData)) config.body = JSON.stringify(config.body);
+      if (config.body instanceof FormData) delete config.headers["Content-Type"];
       const response = await fetch(`${CONFIG.BACKEND_URL}${endpoint}`, config);
       return response.json();
     }
@@ -525,24 +455,13 @@
     // ── Dashboard ─────────────────────────────────────
     async function cargarDashboard() {
       try {
-        const [solicitudes, pagos, libros, usuarios] = await Promise.all([
-          api("/api/solicitudes?estado=pendiente"),
-          api("/api/pagos?estado=pendiente"),
-          api("/api/libros?activo=true"),
-          api("/api/usuarios")
-        ]);
-
-        document.getElementById("stat-solicitudes").textContent = solicitudes.total || 0;
-        document.getElementById("stat-pagos").textContent = pagos.total || 0;
-        document.getElementById("stat-libros").textContent = libros.total || 0;
-        document.getElementById("stat-usuarios").textContent = usuarios.total || 0;
-
-        document.getElementById("actividad-reciente").innerHTML = `
-          <p><i class="bi bi-clock me-2"></i>Última actualización: ${new Date().toLocaleString('es-PE')}</p>
-        `;
-      } catch (err) {
-        console.error("Error al cargar dashboard:", err);
-      }
+        const [sol, pag, lib, usr] = await Promise.all([api("/api/solicitudes?estado=pendiente"), api("/api/pagos?estado=pendiente"), api("/api/libros?activo=true"), api("/api/usuarios")]);
+        document.getElementById("stat-solicitudes").textContent = sol.total || 0;
+        document.getElementById("stat-pagos").textContent = pag.total || 0;
+        document.getElementById("stat-libros").textContent = lib.total || 0;
+        document.getElementById("stat-usuarios").textContent = usr.total || 0;
+        document.getElementById("actividad-reciente").innerHTML = `<p><i class="bi bi-clock me-2"></i>Última actualización: ${new Date().toLocaleString('es-PE')}</p>`;
+      } catch (err) { console.error(err); }
     }
 
     // ── Solicitudes ───────────────────────────────────
@@ -550,64 +469,27 @@
       try {
         const data = await api("/api/solicitudes");
         const tbody = document.getElementById("tabla-solicitudes");
-
-        if (!data.solicitudes || data.solicitudes.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No hay solicitudes</td></tr>';
-          return;
-        }
-
+        if (!data.solicitudes?.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No hay solicitudes</td></tr>'; return; }
         tbody.innerHTML = data.solicitudes.map(s => `
           <tr>
-            <td>${s.titulo}</td>
-            <td>${s.autor}</td>
-            <td>${s.editoriales?.nombre || '-'}</td>
-            <td>S/ ${parseFloat(s.precio).toFixed(2)}</td>
-            <td>S/ ${parseFloat(s.monto_derechos).toFixed(2)}</td>
-            <td><span class="badge badge-estado bg-${getEstadoColor(s.estado)}">${s.estado}</span></td>
+            <td>${s.titulo}</td><td>${s.autor}</td><td>${s.editoriales?.nombre || '-'}</td>
+            <td>S/ ${parseFloat(s.precio).toFixed(2)}</td><td>S/ ${parseFloat(s.monto_derechos).toFixed(2)}</td>
+            <td><span class="badge bg-${getEstadoColor(s.estado)}">${s.estado}</span></td>
             <td>${new Date(s.creado_el).toLocaleDateString('es-PE')}</td>
             <td>
-              ${s.estado === 'aprobada' ? `
-                <button class="btn btn-success btn-sm" onclick="subirArchivos('${s.id}')">
-                  <i class="bi bi-upload"></i>
-                </button>
-              ` : ''}
-              <button class="btn btn-warning btn-sm" onclick="cambiarEstado('${s.id}', 'en_revision')">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="cambiarEstado('${s.id}', 'rechazada')">
-                <i class="bi bi-x-lg"></i>
-              </button>
+              ${s.estado === 'aprobada' ? `<button class="btn btn-success btn-sm" onclick="subirArchivos('${s.id}', '${s.titulo}', '${s.editorial_id}')"><i class="bi bi-upload"></i></button>` : ''}
+              ${s.estado === 'pendiente' ? `<button class="btn btn-info btn-sm" onclick="cambiarEstado('${s.id}', 'en_revision')"><i class="bi bi-eye"></i></button>` : ''}
+              ${s.estado !== 'rechazada' && s.estado !== 'archivada' ? `<button class="btn btn-danger btn-sm" onclick="cambiarEstado('${s.id}', 'rechazada')"><i class="bi bi-x-lg"></i></button>` : ''}
             </td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Error:", err);
-      }
+          </tr>`).join("");
+      } catch (err) { console.error(err); }
     }
 
-    function getEstadoColor(estado) {
-      const colores = {
-        pendiente: "warning",
-        en_revision: "info",
-        aprobada: "success",
-        rechazada: "danger",
-        archivada: "secondary"
-      };
-      return colores[estado] || "secondary";
-    }
+    function getEstadoColor(e) { return { pendiente:"warning", en_revision:"info", aprobada:"success", rechazada:"danger", archivada:"secondary" }[e] || "secondary"; }
 
     async function cambiarEstado(id, estado) {
       if (!confirm(`¿Cambiar estado a "${estado}"?`)) return;
-
-      try {
-        await api(`/api/solicitudes/${id}/estado`, {
-          method: "PATCH",
-          body: { estado }
-        });
-        cargarSolicitudes();
-      } catch (err) {
-        alert("Error al cambiar estado");
-      }
+      try { await api(`/api/solicitudes/${id}/estado`, { method: "PATCH", body: { estado } }); cargarSolicitudes(); } catch (e) { alert("Error"); }
     }
 
     // ── Pagos ─────────────────────────────────────────
@@ -615,74 +497,38 @@
       try {
         const data = await api("/api/pagos");
         const tbody = document.getElementById("tabla-pagos");
-
-        if (!data.pagos || data.pagos.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay pagos</td></tr>';
-          return;
-        }
-
+        if (!data.pagos?.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay pagos</td></tr>'; return; }
         tbody.innerHTML = data.pagos.map(p => `
           <tr>
-            <td>${p.solicitudes_derechos?.titulo || '-'}</td>
-            <td>${p.editoriales?.nombre || '-'}</td>
+            <td>${p.solicitudes_derechos?.titulo || '-'}</td><td>${p.editoriales?.nombre || '-'}</td>
             <td>S/ ${parseFloat(p.monto).toFixed(2)}</td>
-            <td>
-              ${p.comprobante_url ? `
-                <button class="btn btn-outline-primary btn-sm" onclick="verComprobante('${p.comprobante_url}')">
-                  <i class="bi bi-image"></i> Ver
-                </button>
-              ` : '<span class="text-muted">Sin comprobante</span>'}
-            </td>
-            <td><span class="badge bg-${p.estado === 'aprobado' ? 'success' : p.estado === 'rechazado' ? 'danger' : 'warning'}">${p.estado}</span></td>
+            <td>${p.comprobante_url ? `<button class="btn btn-outline-primary btn-sm" onclick="verComprobante('${p.comprobante_url}')"><i class="bi bi-image"></i></button>` : '<span class="text-muted">-</span>'}</td>
+            <td><span class="badge bg-${p.estado==='aprobado'?'success':p.estado==='rechazado'?'danger':'warning'}">${p.estado}</span></td>
             <td>${new Date(p.creado_el).toLocaleDateString('es-PE')}</td>
-            <td>
-              ${p.estado === 'pendiente' ? `
-                <button class="btn btn-success btn-sm" onclick="aprobarPago('${p.id}')">
-                  <i class="bi bi-check-lg"></i>
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="rechazarPago('${p.id}')">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              ` : ''}
-            </td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Error:", err);
-      }
+            <td>${p.estado==='pendiente' ? `<button class="btn btn-success btn-sm" onclick="aprobarPago('${p.id}')"><i class="bi bi-check-lg"></i></button><button class="btn btn-danger btn-sm" onclick="rechazarPago('${p.id}')"><i class="bi bi-x-lg"></i></button>` : ''}</td>
+          </tr>`).join("");
+      } catch (err) { console.error(err); }
     }
 
-    function verComprobante(url) {
-      document.getElementById("comprobante-img").src = url;
-      new bootstrap.Modal(document.getElementById("modalComprobante")).show();
-    }
+    function verComprobante(url) { document.getElementById("comprobante-img").src = url; new bootstrap.Modal(document.getElementById("modalComprobante")).show(); }
 
     async function aprobarPago(id) {
-      if (!confirm("¿Aprobar este pago? La solicitud se habilitará para carga de archivos.")) return;
-
-      try {
-        const result = await api(`/api/pagos/${id}/aprobar`, { method: "PATCH" });
-        alert(result.mensaje);
-        cargarPagos();
-        cargarSolicitudes();
-      } catch (err) {
-        alert("Error al aprobar");
-      }
+      if (!confirm("¿Aprobar este pago?")) return;
+      try { const r = await api(`/api/pagos/${id}/aprobar`, { method: "PATCH" }); alert(r.mensaje); cargarPagos(); cargarSolicitudes(); } catch (e) { alert("Error"); }
     }
 
     async function rechazarPago(id) {
       const motivo = prompt("Motivo del rechazo:");
       if (!motivo) return;
+      try { await api(`/api/pagos/${id}/rechazar`, { method: "PATCH", body: { motivo_rechazo: motivo } }); cargarPagos(); } catch (e) { alert("Error"); }
+    }
 
-      try {
-        await api(`/api/pagos/${id}/rechazar`, {
-          method: "PATCH",
-          body: { motivo_rechazo: motivo }
-        });
-        cargarPagos();
-      } catch (err) {
-        alert("Error al rechazar");
-      }
+    // ── Subir Archivos ────────────────────────────────
+    function subirArchivos(solicitudId, titulo, editorialId) {
+      document.getElementById("ua-solicitud-id").value = solicitudId;
+      document.getElementById("ua-info").innerHTML = `<strong>Solicitud:</strong> ${titulo}`;
+      document.getElementById("formSubirArchivos").reset();
+      new bootstrap.Modal(document.getElementById("modalSubirArchivos")).show();
     }
 
     // ── Libros ────────────────────────────────────────
@@ -690,238 +536,219 @@
       try {
         const data = await api("/api/libros");
         const tbody = document.getElementById("tabla-libros");
-
-        if (!data.libros || data.libros.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay libros</td></tr>';
-          return;
-        }
-
+        if (!data.libros?.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay libros</td></tr>'; return; }
         tbody.innerHTML = data.libros.map(l => `
           <tr>
-            <td>
-              ${l.portada_url ? `<img src="${l.portada_url}" style="width:50px;height:70px;object-fit:cover;border-radius:4px;">` : '<span class="text-muted">Sin portada</span>'}
-            </td>
-            <td>${l.titulo}</td>
-            <td>${l.autor}</td>
-            <td>${l.editoriales?.nombre || '-'}</td>
+            <td>${l.portada_url ? `<img src="${l.portada_url}" style="width:50px;height:70px;object-fit:cover;border-radius:4px;">` : '-'}</td>
+            <td>${l.titulo}</td><td>${l.autor}</td><td>${l.editoriales?.nombre || '-'}</td>
             <td>S/ ${parseFloat(l.precio).toFixed(2)}</td>
-            <td><span class="badge bg-${l.activo ? 'success' : 'secondary'}">${l.activo ? 'Activo' : 'Inactivo'}</span></td>
+            <td><span class="badge bg-${l.activo?'success':'secondary'}">${l.activo?'Activo':'Inactivo'}</span></td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="eliminarLibro('${l.id}')">
-                <i class="bi bi-trash"></i>
-              </button>
+              <button class="btn btn-warning btn-sm" onclick="editarLibro('${l.id}','${l.titulo}','${l.autor}','${l.editorial_id||''}','${l.precio}','${l.anio||''}','${(l.sinopsis||'').replace(/'/g,"\\'")}','${l.activo}')"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarLibro('${l.id}')"><i class="bi bi-trash"></i></button>
             </td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Error:", err);
-      }
+          </tr>`).join("");
+      } catch (err) { console.error(err); }
     }
 
-    async function eliminarLibro(id) {
-      if (!confirm("¿Eliminar este libro?")) return;
-
-      try {
-        await api(`/api/libros/${id}`, { method: "DELETE" });
-        cargarLibros();
-      } catch (err) {
-        alert("Error al eliminar");
-      }
+    function editarLibro(id, titulo, autor, editorial_id, precio, anio, sinopsis, activo) {
+      document.getElementById("el-id").value = id;
+      document.getElementById("el-titulo").value = titulo;
+      document.getElementById("el-autor").value = autor;
+      document.getElementById("el-precio").value = precio;
+      document.getElementById("el-anio").value = anio;
+      document.getElementById("el-sinopsis").value = sinopsis;
+      document.getElementById("el-activo").value = activo;
+      cargarEditorialesSelect("el-editorial", editorial_id);
+      new bootstrap.Modal(document.getElementById("modalEditarLibro")).show();
     }
+
+    async function eliminarLibro(id) { if (!confirm("¿Eliminar?")) return; try { await api(`/api/libros/${id}`, { method: "DELETE" }); cargarLibros(); } catch(e) { alert("Error"); } }
 
     // ── Editoriales ───────────────────────────────────
     async function cargarEditoriales() {
       try {
         const data = await api("/api/editoriales");
         const tbody = document.getElementById("tabla-editoriales");
-
-        if (!data.editoriales || data.editoriales.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay editoriales</td></tr>';
-          return;
-        }
-
+        if (!data.editoriales?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay editoriales</td></tr>'; return; }
         tbody.innerHTML = data.editoriales.map(e => `
           <tr>
-            <td>${e.nombre}</td>
-            <td>${e.correo_contacto || '-'}</td>
+            <td>${e.nombre}</td><td>${e.correo_contacto || '-'}</td>
             <td>${new Date(e.creado_el).toLocaleDateString('es-PE')}</td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="eliminarEditorial('${e.id}')">
-                <i class="bi bi-trash"></i>
-              </button>
+              <button class="btn btn-warning btn-sm" onclick="editarEditorial('${e.id}','${e.nombre}','${e.correo_contacto||''}')"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="eliminarEditorial('${e.id}')"><i class="bi bi-trash"></i></button>
             </td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Error:", err);
-      }
+          </tr>`).join("");
+      } catch (err) { console.error(err); }
     }
 
-    async function eliminarEditorial(id) {
-      if (!confirm("¿Eliminar esta editorial?")) return;
-
-      try {
-        await api(`/api/editoriales/${id}`, { method: "DELETE" });
-        cargarEditoriales();
-      } catch (err) {
-        alert("Error al eliminar");
-      }
+    function editarEditorial(id, nombre, correo) {
+      document.getElementById("ee-id").value = id;
+      document.getElementById("ee-nombre").value = nombre;
+      document.getElementById("ee-correo").value = correo;
+      new bootstrap.Modal(document.getElementById("modalEditarEditorial")).show();
     }
+
+    async function eliminarEditorial(id) { if (!confirm("¿Eliminar?")) return; try { await api(`/api/editoriales/${id}`, { method: "DELETE" }); cargarEditoriales(); } catch(e) { alert("Error"); } }
 
     // ── Usuarios ──────────────────────────────────────
     async function cargarUsuarios() {
       try {
         const data = await api("/api/usuarios");
         const tbody = document.getElementById("tabla-usuarios");
-
-        if (!data.usuarios || data.usuarios.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay usuarios</td></tr>';
-          return;
-        }
-
+        if (!data.usuarios?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay usuarios</td></tr>'; return; }
         tbody.innerHTML = data.usuarios.map(u => `
           <tr>
-            <td>${u.nombre} ${u.apellido}</td>
-            <td>${u.correo}</td>
+            <td>${u.nombre} ${u.apellido}</td><td>${u.correo}</td>
             <td><span class="badge bg-${getRolColor(u.rol)}">${u.rol}</span></td>
             <td>${new Date(u.creado_al).toLocaleDateString('es-PE')}</td>
             <td>
-              ${u.rol !== 'super' ? `
-                <button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}')">
-                  <i class="bi bi-trash"></i>
-                </button>
-              ` : ''}
+              ${u.rol!=='super' ? `<button class="btn btn-warning btn-sm" onclick="editarUsuario('${u.id}','${u.nombre}','${u.apellido}','${u.telefono||''}','${u.direccion||''}','${u.rol}')"><i class="bi bi-pencil"></i></button>` : ''}
+              ${u.rol!=='super' ? `<button class="btn btn-danger btn-sm" onclick="eliminarUsuario('${u.id}')"><i class="bi bi-trash"></i></button>` : ''}
             </td>
-          </tr>
-        `).join("");
-      } catch (err) {
-        console.error("Error:", err);
-      }
+          </tr>`).join("");
+      } catch (err) { console.error(err); }
     }
 
-    function getRolColor(rol) {
-      const colores = { super: "danger", admin: "warning", cliente: "success", proveedor: "info", reporte: "secondary" };
-      return colores[rol] || "secondary";
+    function getRolColor(r) { return { super:"danger", admin:"warning", cliente:"success", proveedor:"info", reporte:"secondary" }[r] || "secondary"; }
+
+    function editarUsuario(id, nombre, apellido, telefono, direccion, rol) {
+      document.getElementById("eu-id").value = id;
+      document.getElementById("eu-nombre").value = nombre;
+      document.getElementById("eu-apellido").value = apellido;
+      document.getElementById("eu-telefono").value = telefono;
+      document.getElementById("eu-direccion").value = direccion;
+      document.getElementById("eu-rol").value = rol;
+      new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
     }
 
-    async function eliminarUsuario(id) {
-      if (!confirm("¿Eliminar este usuario?")) return;
+    async function eliminarUsuario(id) { if (!confirm("¿Eliminar?")) return; try { await api(`/api/usuarios/${id}`, { method: "DELETE" }); cargarUsuarios(); } catch(e) { alert("Error"); } }
 
+    // ── Selects de editoriales ────────────────────────
+    async function cargarEditorialesSelect(selectId, selectedId) {
       try {
-        await api(`/api/usuarios/${id}`, { method: "DELETE" });
-        cargarUsuarios();
-      } catch (err) {
-        alert("Error al eliminar");
-      }
+        const data = await api("/api/editoriales");
+        const select = document.getElementById(selectId);
+        select.innerHTML = '<option value="">Seleccionar...</option>' + data.editoriales.map(e => `<option value="${e.id}" ${e.id===selectedId?'selected':''}>${e.nombre}</option>`).join("");
+      } catch (err) { console.error(err); }
     }
 
     // ── Formularios ───────────────────────────────────
     function configurarFormularios() {
-      // Solicitud
+      // Nueva solicitud
       document.getElementById("formSolicitud").addEventListener("submit", async (e) => {
         e.preventDefault();
         try {
-          await api("/api/solicitudes", {
-            method: "POST",
-            body: {
-              editorial_id: document.getElementById("sol-editorial").value,
-              titulo: document.getElementById("sol-titulo").value,
-              autor: document.getElementById("sol-autor").value,
-              anio: document.getElementById("sol-anio").value || null,
-              precio: parseFloat(document.getElementById("sol-precio").value),
-              monto_derechos: parseFloat(document.getElementById("sol-monto").value),
-              descripcion: document.getElementById("sol-descripcion").value,
-              sinopsis: document.getElementById("sol-sinopsis").value,
-              observaciones: document.getElementById("sol-observaciones").value
-            }
-          });
+          await api("/api/solicitudes", { method: "POST", body: {
+            editorial_id: document.getElementById("sol-editorial").value,
+            titulo: document.getElementById("sol-titulo").value,
+            autor: document.getElementById("sol-autor").value,
+            anio: document.getElementById("sol-anio").value || null,
+            precio: parseFloat(document.getElementById("sol-precio").value),
+            monto_derechos: parseFloat(document.getElementById("sol-monto").value),
+            descripcion: document.getElementById("sol-descripcion").value,
+            sinopsis: document.getElementById("sol-sinopsis").value,
+            observaciones: document.getElementById("sol-observaciones").value
+          }});
           bootstrap.Modal.getInstance(document.getElementById("modalSolicitud")).hide();
           cargarSolicitudes();
-        } catch (err) {
-          alert("Error al crear solicitud");
-        }
+        } catch (err) { alert("Error"); }
       });
 
-      // Libro
-      document.getElementById("formLibro").addEventListener("submit", async (e) => {
+      // Subir archivos
+      document.getElementById("formSubirArchivos").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        formData.append("editorial_id", document.getElementById("lib-editorial").value);
-        formData.append("titulo", document.getElementById("lib-titulo").value);
-        formData.append("autor", document.getElementById("lib-autor").value);
-        formData.append("anio", document.getElementById("lib-anio").value);
-        formData.append("precio", document.getElementById("lib-precio").value);
-        formData.append("sinopsis", document.getElementById("lib-sinopsis").value);
-
+        const solicitud = await api(`/api/solicitudes/${document.getElementById("ua-solicitud-id").value}`);
+        const sol = solicitud.solicitud;
+        const formData = new FormData();
+        formData.append("titulo", sol.titulo);
+        formData.append("autor", sol.autor);
+        formData.append("editorial_id", sol.editorial_id);
+        formData.append("precio", sol.precio);
+        formData.append("sinopsis", sol.sinopsis || sol.descripcion || "");
+        formData.append("anio", sol.anio || "");
+        formData.append("activo", "true");
+        const portada = e.target.querySelector('[name="portada"]').files[0];
+        const pdf = e.target.querySelector('[name="archivo_pdf"]').files[0];
+        if (portada) formData.append("portada", portada);
+        if (pdf) formData.append("archivo_pdf", pdf);
         try {
-          await api("/api/libros", {
-            method: "POST",
-            body: formData,
-            headers: { "Authorization": `Bearer ${token}` }
-          });
-          bootstrap.Modal.getInstance(document.getElementById("modalLibro")).hide();
-          cargarLibros();
-        } catch (err) {
-          alert("Error al crear libro");
-        }
+          await api("/api/libros", { method: "POST", body: formData, headers: { "Authorization": `Bearer ${token}` } });
+          await api(`/api/solicitudes/${sol.id}/estado`, { method: "PATCH", body: { estado: "archivada" } });
+          bootstrap.Modal.getInstance(document.getElementById("modalSubirArchivos")).hide();
+          alert("Libro publicado exitosamente");
+          cargarSolicitudes();
+          cargarDashboard();
+        } catch (err) { alert("Error al subir archivos"); }
       });
 
-      // Editorial
+      // Editar libro
+      document.getElementById("formEditarLibro").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("el-id").value;
+        const formData = new FormData();
+        formData.append("titulo", document.getElementById("el-titulo").value);
+        formData.append("autor", document.getElementById("el-autor").value);
+        formData.append("editorial_id", document.getElementById("el-editorial").value);
+        formData.append("precio", document.getElementById("el-precio").value);
+        formData.append("anio", document.getElementById("el-anio").value);
+        formData.append("sinopsis", document.getElementById("el-sinopsis").value);
+        formData.append("activo", document.getElementById("el-activo").value);
+        const portada = e.target.querySelector('[name="portada"]').files[0];
+        const pdf = e.target.querySelector('[name="archivo_pdf"]').files[0];
+        if (portada) formData.append("portada", portada);
+        if (pdf) formData.append("archivo_pdf", pdf);
+        try {
+          await api(`/api/libros/${id}`, { method: "PUT", body: formData, headers: { "Authorization": `Bearer ${token}` } });
+          bootstrap.Modal.getInstance(document.getElementById("modalEditarLibro")).hide();
+          cargarLibros();
+        } catch (err) { alert("Error"); }
+      });
+
+      // Nueva editorial
       document.getElementById("formEditorial").addEventListener("submit", async (e) => {
         e.preventDefault();
         try {
-          await api("/api/editoriales", {
-            method: "POST",
-            body: {
-              nombre: document.getElementById("ed-nombre").value,
-              correo_contacto: document.getElementById("ed-correo").value
-            }
-          });
+          await api("/api/editoriales", { method: "POST", body: { nombre: document.getElementById("ed-nombre").value, correo_contacto: document.getElementById("ed-correo").value } });
           bootstrap.Modal.getInstance(document.getElementById("modalEditorial")).hide();
           cargarEditoriales();
-        } catch (err) {
-          alert("Error al crear editorial");
-        }
+        } catch (err) { alert("Error"); }
+      });
+
+      // Editar editorial
+      document.getElementById("formEditarEditorial").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("ee-id").value;
+        try {
+          await api(`/api/editoriales/${id}`, { method: "PUT", body: { nombre: document.getElementById("ee-nombre").value, correo_contacto: document.getElementById("ee-correo").value } });
+          bootstrap.Modal.getInstance(document.getElementById("modalEditarEditorial")).hide();
+          cargarEditoriales();
+        } catch (err) { alert("Error"); }
+      });
+
+      // Editar usuario
+      document.getElementById("formEditarUsuario").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("eu-id").value;
+        try {
+          await api(`/api/usuarios/${id}`, { method: "PUT", body: {
+            nombre: document.getElementById("eu-nombre").value,
+            apellido: document.getElementById("eu-apellido").value,
+            telefono: document.getElementById("eu-telefono").value,
+            direccion: document.getElementById("eu-direccion").value,
+            rol: document.getElementById("eu-rol").value
+          }});
+          bootstrap.Modal.getInstance(document.getElementById("modalEditarUsuario")).hide();
+          cargarUsuarios();
+        } catch (err) { alert("Error"); }
       });
     }
 
-    async function cargarEditorialesSelect() {
-      try {
-        const data = await api("/api/editoriales");
-        const options = data.editoriales.map(e => `<option value="${e.id}">${e.nombre}</option>`).join("");
-        document.getElementById("sol-editorial").innerHTML = '<option value="">Seleccionar...</option>' + options;
-        document.getElementById("lib-editorial").innerHTML = '<option value="">Seleccionar...</option>' + options;
-      } catch (err) {
-        console.error("Error:", err);
-      }
-    }
-
-    function abrirModalNuevaSolicitud() {
-      cargarEditorialesSelect();
-      document.getElementById("formSolicitud").reset();
-      new bootstrap.Modal(document.getElementById("modalSolicitud")).show();
-    }
-
-    function abrirModalNuevoLibro() {
-      cargarEditorialesSelect();
-      document.getElementById("formLibro").reset();
-      new bootstrap.Modal(document.getElementById("modalLibro")).show();
-    }
-
-    function abrirModalNuevaEditorial() {
-      document.getElementById("formEditorial").reset();
-      new bootstrap.Modal(document.getElementById("modalEditorial")).show();
-    }
-
-    function subirArchivos(solicitudId) {
-      alert("Función de carga de archivos para solicitud: " + solicitudId);
-      // TODO: Implementar modal de carga de archivos
-    }
-
-    function logout() {
-      sessionStorage.removeItem("user");
-      window.location.href = "login.html";
-    }
+    function abrirModalNuevaSolicitud() { cargarEditorialesSelect("sol-editorial"); document.getElementById("formSolicitud").reset(); new bootstrap.Modal(document.getElementById("modalSolicitud")).show(); }
+    function abrirModalNuevoLibro() { cargarEditorialesSelect("lib-editorial"); document.getElementById("formLibro").reset(); new bootstrap.Modal(document.getElementById("modalLibro")).show(); }
+    function abrirModalNuevaEditorial() { document.getElementById("formEditorial").reset(); new bootstrap.Modal(document.getElementById("modalEditorial")).show(); }
+    function logout() { sessionStorage.removeItem("user"); window.location.href = "login.html"; }
   </script>
 </body>
 </html>
