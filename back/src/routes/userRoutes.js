@@ -11,23 +11,19 @@ const {
 } = require("../controllers/userController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
-// Todas las rutas requieren autenticación y rol de admin o super
-router.use(authenticate);
-router.use(authorize("super", "admin"));
-
-// Listar todos los usuarios
-router.get("/usuarios", listarUsuarios);
+// Listar todos los usuarios (admin/super)
+router.get("/usuarios", authenticate, authorize("super", "admin"), listarUsuarios);
 
 // Proveedores sin editorial (para notificaciones)
-router.get("/usuarios/proveedores-sin-editorial", proveedoresSinEditorial);
+router.get("/usuarios/proveedores-sin-editorial", authenticate, authorize("super", "admin"), proveedoresSinEditorial);
 
 // Obtener usuario por ID
-router.get("/usuarios/:id", obtenerUsuario);
+router.get("/usuarios/:id", authenticate, authorize("super", "admin"), obtenerUsuario);
 
 // Actualizar usuario
-router.put("/usuarios/:id", actualizarUsuario);
+router.put("/usuarios/:id", authenticate, authorize("super", "admin"), actualizarUsuario);
 
 // Eliminar usuario
-router.delete("/usuarios/:id", eliminarUsuario);
+router.delete("/usuarios/:id", authenticate, authorize("super", "admin"), eliminarUsuario);
 
 module.exports = router;

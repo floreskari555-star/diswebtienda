@@ -12,25 +12,22 @@ const {
 } = require("../controllers/pagoController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
-// Todas las rutas requieren autenticación
-router.use(authenticate);
-
 // Listar pagos
-router.get("/pagos", authorize("super", "admin", "proveedor"), listarPagos);
+router.get("/pagos", authenticate, authorize("super", "admin", "proveedor"), listarPagos);
 
 // Obtener pago por ID
-router.get("/pagos/:id", authorize("super", "admin", "proveedor"), obtenerPago);
+router.get("/pagos/:id", authenticate, authorize("super", "admin", "proveedor"), obtenerPago);
 
 // Crear pago (con comprobante upload)
-router.post("/pagos", authorize("super", "admin", "proveedor"), crearPago);
+router.post("/pagos", authenticate, authorize("super", "admin", "proveedor"), crearPago);
 
 // Aprobar pago (solo admin)
-router.patch("/pagos/:id/aprobar", authorize("super", "admin"), aprobarPago);
+router.patch("/pagos/:id/aprobar", authenticate, authorize("super", "admin"), aprobarPago);
 
 // Rechazar pago (solo admin)
-router.patch("/pagos/:id/rechazar", authorize("super", "admin"), rechazarPago);
+router.patch("/pagos/:id/rechazar", authenticate, authorize("super", "admin"), rechazarPago);
 
 // Eliminar pago
-router.delete("/pagos/:id", authorize("super", "admin"), eliminarPago);
+router.delete("/pagos/:id", authenticate, authorize("super", "admin", "proveedor"), eliminarPago);
 
 module.exports = router;
