@@ -15,5 +15,5 @@ const CONFIG = {
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", // Reemplazar con tu anon key real
 
   // Bucket de imágenes (constante en toda la app)
-  BUCKET_NAME: "libros"
+  BUCKET_NAME: "libreria"
 };
