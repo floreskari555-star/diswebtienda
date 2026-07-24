@@ -152,8 +152,8 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    // Obtener perfil del usuario
-    const { data: perfil, error: perfilError } = await supabase
+    // Obtener perfil del usuario (usar admin para bypasear RLS)
+    const { data: perfil, error: perfilError } = await supabaseAdmin
       .from("perfiles")
       .select("*")
       .eq("id", data.user.id)
@@ -273,7 +273,7 @@ const obtenerPerfil = async (req, res) => {
   console.log("👤 [AUTH] Obtener perfil");
 
   try {
-    const { data: perfil, error } = await supabase
+    const { data: perfil, error } = await supabaseAdmin
       .from("perfiles")
       .select("*")
       .eq("id", req.user.id)

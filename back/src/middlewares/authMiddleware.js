@@ -1,6 +1,6 @@
 /* | Nombre: authMiddleware.js | Finalidad: Valida tokens JWT y restringe accesos según el rol (cliente/admin). */
 
-const { supabase } = require("../config/supabase");
+const { supabaseAdmin } = require("../config/supabase");
 
 // Middleware: verificar que el usuario está autenticado
 const authenticate = async (req, res, next) => {
@@ -16,7 +16,7 @@ const authenticate = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
       console.log("❌ [AUTH] Token inválido:", error?.message);
@@ -24,7 +24,7 @@ const authenticate = async (req, res, next) => {
     }
 
     // Obtener perfil del usuario para saber el rol
-    const { data: perfil, error: perfilError } = await supabase
+    const { data: perfil, error: perfilError } = await supabaseAdmin
       .from("perfiles")
       .select("*")
       .eq("id", user.id)
