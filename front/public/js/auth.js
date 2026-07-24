@@ -1,6 +1,6 @@
 /**
  * auth.js - Lógica de autenticación con Supabase
- * DisWebTienda - Frontend
+ * LibrosLibres Librería - Frontend
  */
 
 // ── Configuración global ──────────────────────────────

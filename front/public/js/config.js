@@ -1,6 +1,6 @@
 /**
  * config.js - Configuración global del frontend
- * DisWebTienda - Frontend
+ * LibrosLibres Librería - Frontend
  *
  * Modifica BACKEND_URL según tu entorno:
  *   - Local:    http://localhost:3000

@@ -1,6 +1,6 @@
 /**
  * app.js - Lógica principal del catálogo de libros
- * DisWebTienda - Frontend
+ * LibrosLibres Librería - Frontend
  */
 
 // ── Configuración ────────────────────────────────────

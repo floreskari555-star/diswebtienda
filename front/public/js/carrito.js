@@ -1,6 +1,6 @@
 /**
  * carrito.js - Gestión del carrito de compras con sessionStorage
- * DisWebTienda - Frontend
+ * LibrosLibres Librería - Frontend
  */
 
 // ── Obtener carrito de sessionStorage ─────────────────
