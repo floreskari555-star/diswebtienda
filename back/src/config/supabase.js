@@ -23,7 +23,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 // Nombre del bucket para imágenes (constante de toda la app)
-const BUCKET_NAME = "libreria";
+const BUCKET_NAME = "libros";
 
 console.log("✅ [SUPABASE] Clientes inicializados correctamente");
 
