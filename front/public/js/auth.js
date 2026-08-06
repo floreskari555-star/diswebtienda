@@ -10,7 +10,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   verificarSesionActiva();
   configurarFormularioLogin();
-  configurarBotonesDemo();
   configurarTogglePassword();
 });
 
@@ -106,38 +105,6 @@ function redirigirSegunRol(rol) {
       window.location.href = "index.html";
       break;
   }
-}
-
-// ── Configurar botones de demo (acceso rápido) ────────
-function configurarBotonesDemo() {
-  document.querySelectorAll(".btn-demo").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const rol = btn.dataset.rol;
-
-      // Simular login con datos de prueba
-      const usuarioSimulado = {
-        id: "demo-" + Date.now(),
-        email: `usuario@${rol}.com`,
-        nombre: rol.charAt(0).toUpperCase() + rol.slice(1),
-        apellido: "Demo",
-        rol: rol,
-        token: "demo-token"
-      };
-
-      sessionStorage.setItem("user", JSON.stringify(usuarioSimulado));
-
-      // Mostrar mensaje
-      const alertError = document.getElementById("alert-error");
-      alertError.className = "alert alert-success";
-      alertError.textContent = `Sesión simulada como ${rol}. Redirigiendo...`;
-      alertError.classList.remove("d-none");
-
-      // Redirigir después de un momento
-      setTimeout(() => {
-        redirigirSegunRol(rol);
-      }, 1000);
-    });
-  });
 }
 
 // ── Toggle mostrar/ocultar contraseña ─────────────────
