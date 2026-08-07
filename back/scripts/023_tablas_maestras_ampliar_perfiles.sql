@@ -42,6 +42,19 @@ INSERT INTO public.tablas_maestras (tabla, clave, valor, orden) VALUES
   ('TipoDocumento', 'CarnetRefug', 'Carné de Refugiado', 6)
 ON CONFLICT (tabla, clave) DO UPDATE SET valor = EXCLUDED.valor, orden = EXCLUDED.orden;
 
+-- Seed: Formas de pago
+INSERT INTO public.tablas_maestras (tabla, clave, valor, orden) VALUES
+  ('forpago', 'YAPE', 'Yape', 1),
+  ('forpago', 'PLIN', 'Plin', 2),
+  ('forpago', 'VISA', 'Visa', 3),
+  ('forpago', 'MASTERCARD', 'Mastercard', 4),
+  ('forpago', 'AMEX', 'American Express', 5),
+  ('forpago', 'PAYPAL', 'PayPal', 6),
+  ('forpago', 'BCP', 'Transferencia BCP', 7),
+  ('forpago', 'INTERBANK', 'Transferencia Interbank', 8),
+  ('forpago', 'EFECTIVO', 'Efectivo en tienda', 9)
+ON CONFLICT (tabla, clave) DO UPDATE SET valor = EXCLUDED.valor, orden = EXCLUDED.orden;
+
 -- ============================================
 -- 2. AMPLIAR TABLA PERFILES
 -- ============================================

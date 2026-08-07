@@ -114,6 +114,14 @@
                   <strong class="fs-5" style="color: var(--accent-color);" id="resumen-total">S/ 0.00</strong>
                 </div>
 
+                <!-- Forma de pago -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Forma de pago</label>
+                  <select class="form-select" id="forma-pago" required>
+                    <option value="" selected>Seleccionar método de pago...</option>
+                  </select>
+                </div>
+
                 <button class="btn w-100 btn-lg" id="btn-pagar" style="background-color: var(--accent-color); color: #fff;">
                   <i class="bi bi-credit-card me-2"></i>PAGAR
                 </button>
@@ -156,6 +164,29 @@
             <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
           </a>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Proceso de pago -->
+  <div class="modal fade" id="modal-pago-proceso" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: var(--brand-primary); color: white;">
+          <h5 class="modal-title" id="pago-modal-titulo"><i class="bi bi-credit-card me-2"></i>Proceso de Pago</h5>
+        </div>
+        <div class="modal-body text-center py-4">
+          <div id="pago-modal-icono" class="mb-3"></div>
+          <h5 id="pago-modal-mensaje" class="mb-3"></h5>
+          <p id="pago-modal-descripcion" class="text-muted"></p>
+          <div id="pago-modal-pasos" class="text-start mt-4"></div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn px-4" id="btn-pago-continuar" style="background-color: var(--accent-color); color: #fff;">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Continuar
+          </button>
         </div>
       </div>
     </div>

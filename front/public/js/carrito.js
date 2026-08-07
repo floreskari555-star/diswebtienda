@@ -3,6 +3,136 @@
  * LibrosLibres Librería - Frontend
  */
 
+// ── Configuración de pasarelas de pago ────────────────
+const PASARELAS_PAGO = {
+  YAPE: {
+    titulo: "Pago con Yape",
+    icono: "bi-phone",
+    color: "#7B2D8E",
+    descripcion: "Serás redirigido a la app de Yape para completar el pago de forma segura.",
+    pasos: [
+      "Se abrirá la aplicación de Yape en tu celular",
+      "Confirma el monto a pagar",
+      "Ingresa tu clave de Yape",
+      "Recibirás un código de confirmación",
+      "El pago se acreditará en segundos"
+    ],
+    url: "https://yape.com.pe"
+  },
+  PLIN: {
+    titulo: "Pago con Plin",
+    icono: "bi-phone",
+    color: "#00BFA5",
+    descripcion: "Serás redirigido a la app de Plin para completar el pago de forma segura.",
+    pasos: [
+      "Se abrirá la aplicación de Plin en tu celular",
+      "Confirma el monto a pagar",
+      "Ingresa tu clave de Plin",
+      "Recibirás un código de confirmación",
+      "El pago se acreditará en segundos"
+    ],
+    url: "https://plin.app"
+  },
+  VISA: {
+    titulo: "Pago con Visa",
+    icono: "bi-credit-card",
+    color: "#1A1F71",
+    descripcion: "Serás redirigido al pasarela de pago segura de Visa para ingresar los datos de tu tarjeta.",
+    pasos: [
+      "Serás redirigido al checkout seguro de Visa",
+      "Ingresa el número de tu tarjeta Visa",
+      "Completa la fecha de vencimiento y CVV",
+      "Confirma el código de verificación (OTP)",
+      "El pago se procesará en segundos"
+    ],
+    url: "https://www.visa.com.pe"
+  },
+  MASTERCARD: {
+    titulo: "Pago con Mastercard",
+    icono: "bi-credit-card",
+    color: "#EB001B",
+    descripcion: "Serás redirigido al pasarela de pago segura de Mastercard para ingresar los datos de tu tarjeta.",
+    pasos: [
+      "Serás redirigido al checkout seguro de Mastercard",
+      "Ingresa el número de tu tarjeta Mastercard",
+      "Completa la fecha de vencimiento y CVV",
+      "Confirma el código de verificación (OTP)",
+      "El pago se procesará en segundos"
+    ],
+    url: "https://www.mastercard.com.pe"
+  },
+  AMEX: {
+    titulo: "Pago con American Express",
+    icono: "bi-credit-card",
+    color: "#006FCF",
+    descripcion: "Serás redirigido al pasarela de pago segura de American Express.",
+    pasos: [
+      "Serás redirigido al checkout seguro de Amex",
+      "Ingresa el número de tu tarjeta American Express",
+      "Completa la fecha de vencimiento y código de seguridad",
+      "Confirma el código de verificación (OTP)",
+      "El pago se procesará en segundos"
+    ],
+    url: "https://www.americanexpress.com"
+  },
+  PAYPAL: {
+    titulo: "Pago con PayPal",
+    icono: "bi-paypal",
+    color: "#003087",
+    descripcion: "Serás redirigido a PayPal para completar el pago de forma segura con tu cuenta.",
+    pasos: [
+      "Serás redirigido a la página de PayPal",
+      "Ingresa tus credenciales de PayPal",
+      "Revisa el monto y la forma de pago seleccionada",
+      "Confirma el pago",
+      "Recibirás la confirmación por correo electrónico"
+    ],
+    url: "https://www.paypal.com"
+  },
+  BCP: {
+    titulo: "Transferencia BCP",
+    icono: "bi-bank",
+    color: "#00529B",
+    descripcion: "Se mostrarán los datos bancarios para realizar la transferencia desde tu cuenta BCP.",
+    pasos: [
+      "Copia los datos de la cuenta BCP",
+      "Realiza la transferencia desde tu banca en línea o app",
+      "El monto a transferir es el total de tu compra",
+      "Envía el comprobante de pago a nuestro correo",
+      "Tu pedido se activará una vez verificado el pago"
+    ],
+    url: null
+  },
+  INTERBANK: {
+    titulo: "Transferencia Interbank",
+    icono: "bi-bank",
+    color: "#EC1C24",
+    descripcion: "Se mostrarán los datos bancarios para realizar la transferencia desde tu cuenta Interbank.",
+    pasos: [
+      "Copia los datos de la cuenta Interbank",
+      "Realiza la transferencia desde tu banca en línea o app",
+      "El monto a transferir es el total de tu compra",
+      "Envía el comprobante de pago a nuestro correo",
+      "Tu pedido se activará una vez verificado el pago"
+    ],
+    url: null
+  },
+  EFECTIVO: {
+    titulo: "Pago en Efectivo",
+    icono: "bi-cash",
+    color: "#28A745",
+    descripcion: "Paga en efectivo en nuestros puntos de atención autorizados.",
+    pasos: [
+      "Recibirás un código de pago único",
+      "Acude a nuestro punto de atención más cercano",
+      "Indica el código de pago y el monto a pagar",
+      "Realiza el pago en efectivo",
+      "Tu pedido se activará al confirmar el pago"
+    ],
+    url: null
+  }
+};
+
 // ── Obtener carrito de sessionStorage ─────────────────
 function obtenerCarrito() {
   const carrito = sessionStorage.getItem("carrito");
@@ -179,6 +309,61 @@ function renderizarCarrito() {
   if (totalEl) totalEl.textContent = `S/ ${total.toFixed(2)}`;
 }
 
+// ── Cargar formas de pago desde la tabla maestra ──────
+async function cargarFormasPago() {
+  try {
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/tablas-maestras/forpago`);
+    const data = await res.json();
+    const select = document.getElementById("forma-pago");
+    if (!select) return;
+
+    data.items.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.clave;
+      opt.textContent = item.valor;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Error al cargar formas de pago:", err);
+  }
+}
+
+// ── Mostrar modal de proceso de pago ──────────────────
+function mostrarModalPago(claveMetodo) {
+  const metodo = PASARELAS_PAGO[claveMetodo];
+  if (!metodo) return;
+
+  // Actualizar contenido del modal
+  document.getElementById("pago-modal-titulo").innerHTML = `<i class="${metodo.icono} me-2"></i>${metodo.titulo}`;
+  document.getElementById("pago-modal-icono").innerHTML = `<i class="${metodo.icono} display-1" style="color: ${metodo.color};"></i>`;
+  document.getElementById("pago-modal-mensaje").textContent = metodo.titulo;
+  document.getElementById("pago-modal-descripcion").textContent = metodo.descripcion;
+
+  // Generar pasos
+  const pasosHtml = metodo.pasos.map((paso, i) => `
+    <div class="d-flex align-items-start mb-2">
+      <span class="badge rounded-pill me-2 mt-1" style="background-color: ${metodo.color};">${i + 1}</span>
+      <span>${paso}</span>
+    </div>
+  `).join("");
+  document.getElementById("pago-modal-pasos").innerHTML = pasosHtml;
+
+  // Configurar botón continuar
+  const btnContinuar = document.getElementById("btn-pago-continuar");
+  btnContinuar.onclick = () => {
+    if (metodo.url) {
+      window.open(metodo.url, "_blank");
+    }
+    const modal = bootstrap.Modal.getInstance(document.getElementById("modal-pago-proceso"));
+    modal.hide();
+    mostrarToast("Pago procesado exitosamente (simulado)");
+  };
+
+  // Mostrar modal
+  const modal = new bootstrap.Modal(document.getElementById("modal-pago-proceso"));
+  modal.show();
+}
+
 // ── Mostrar notificación toast ────────────────────────
 function mostrarToast(mensaje) {
   const toastEl = document.getElementById("toast-carrito");
@@ -203,15 +388,20 @@ function manejarPago() {
 
   if (btnPagar) {
     btnPagar.addEventListener("click", () => {
-      if (haySesion()) {
-        // TODO: Redirigir a página de pago
-        alert("Redirigiendo a la página de pago...");
-      } else {
-        // Guardar intención de compra y redirigir a login
+      if (!haySesion()) {
         sessionStorage.setItem("pendingPurchase", "true");
         const modal = new bootstrap.Modal(document.getElementById("modal-login-requerido"));
         modal.show();
+        return;
       }
+
+      const formaPago = document.getElementById("forma-pago");
+      if (!formaPago || !formaPago.value) {
+        mostrarToast("Debes seleccionar una forma de pago");
+        return;
+      }
+
+      mostrarModalPago(formaPago.value);
     });
   }
 }
@@ -220,6 +410,7 @@ function manejarPago() {
 document.addEventListener("DOMContentLoaded", () => {
   renderizarCarrito();
   manejarPago();
+  cargarFormasPago();
   actualizarContadorCarrito();
 
   // Configurar botón vaciar carrito
