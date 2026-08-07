@@ -194,10 +194,10 @@ function vaciarCarrito() {
 // ── Calcular totales ──────────────────────────────────
 function calcularTotales(carrito) {
   const subtotal = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-  const impuestos = subtotal * 0.18;
-  const total = subtotal + impuestos;
+  const igv = subtotal * 0.18;
+  const total = subtotal + igv;
 
-  return { subtotal, impuestos, total };
+  return { subtotal, igv, total };
 }
 
 // ── Actualizar contador del carrito en navbar ─────────
@@ -301,11 +301,11 @@ function renderizarCarrito() {
   }
 
   // Actualizar totales
-  const { subtotal, impuestos, total } = calcularTotales(carrito);
+  const { subtotal, igv, total } = calcularTotales(carrito);
 
   if (totalItemsEl) totalItemsEl.textContent = carrito.reduce((sum, i) => sum + i.cantidad, 0);
   if (subtotalEl) subtotalEl.textContent = `S/ ${subtotal.toFixed(2)}`;
-  if (impuestosEl) impuestosEl.textContent = `S/ ${impuestos.toFixed(2)}`;
+  if (impuestosEl) impuestosEl.textContent = `S/ ${igv.toFixed(2)}`;
   if (totalEl) totalEl.textContent = `S/ ${total.toFixed(2)}`;
 }
 
@@ -328,13 +328,171 @@ async function cargarFormasPago() {
   }
 }
 
+// ── Cargar tipos de comprobante ───────────────────────
+async function cargarTiposComprobante() {
+  try {
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/tablas-maestras/tipoComprobante`);
+    const data = await res.json();
+    const select = document.getElementById("tipo-comprobante");
+    if (!select) return;
+
+    data.items.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item.clave;
+      opt.textContent = item.valor;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error("Error al cargar tipos de comprobante:", err);
+  }
+}
+
+// ── Aplicar regla DNI → solo BOLETA ──────────────────
+function aplicarReglaComprobante() {
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  const select = document.getElementById("tipo-comprobante");
+  const hint = document.getElementById("comprobante-hint");
+  if (!select || !user) return;
+
+  if (user.tipo_documento === "DNI") {
+    select.value = "BOLETA";
+    select.disabled = true;
+    if (hint) hint.textContent = "Solo puedes emitir Boleta con DNI";
+  } else {
+    select.disabled = false;
+    if (hint) hint.textContent = "";
+  }
+}
+
+// ── Generar número de comprobante ─────────────────────
+async function generarNumeroComprobante(tipo) {
+  const prefijo = tipo === "FACTURA" ? "F001-" : "B001-";
+  const timestamp = Date.now().toString().slice(-7);
+  return prefijo + timestamp;
+}
+
+// ── Generar ticket HTML ───────────────────────────────
+function generarTicketHTML(tipo, numero, carrito, totales, user) {
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2, "0");
+  const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+  const anio = ahora.getFullYear();
+  const hora = ahora.toLocaleTimeString("es-PE");
+
+  const nombreCliente = `${user.nombre || ""} ${user.apellido_paterno || ""} ${user.apellido_materno || ""}`.trim();
+  const numDoc = user.numero_documento || "---";
+  const direccion = user.direccion || "---";
+
+  const itemsHTML = carrito.map((item, i) => `
+    <div class="d-flex justify-content-between mb-1">
+      <span>${i + 1}. ${item.titulo}</span>
+      <span>S/ ${(item.precio * item.cantidad).toFixed(2)}</span>
+    </div>
+  `).join("");
+
+  return `
+    <div class="text-center mb-3">
+      <strong style="font-size: 1.1em;">LIBROSLIBRES LIBRERIA</strong><br>
+      <small>RUC: 20512345678</small><br>
+      <small>Av. Principal 123, Lima - Lima</small><br>
+      <small>Tel: (01) 123-4567</small>
+    </div>
+    <hr style="border-top: 1px dashed #000;">
+    <div class="mb-2">
+      <strong>${tipo}</strong> N° <strong>${numero}</strong>
+    </div>
+    <div class="mb-2">
+      <small>Fecha: ${dia}/${mes}/${anio} ${hora}</small>
+    </div>
+    <hr style="border-top: 1px dashed #000;">
+    <div class="mb-2">
+      <small><strong>Cliente:</strong> ${nombreCliente}</small><br>
+      <small><strong>${user.tipo_documento || "DOC"}:</strong> ${numDoc}</small><br>
+      <small><strong>Dirección:</strong> ${direccion}</small>
+    </div>
+    <hr style="border-top: 1px dashed #000;">
+    <div class="mb-3">
+      <small><strong>DETALLE DE LA VENTA</strong></small>
+      ${itemsHTML}
+    </div>
+    <hr style="border-top: 1px dashed #000;">
+    <div class="d-flex justify-content-between mb-1">
+      <span>Subtotal:</span>
+      <span>S/ ${totales.subtotal.toFixed(2)}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-1">
+      <span>IGV (18%):</span>
+      <span>S/ ${totales.igv.toFixed(2)}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-2" style="font-size: 1.1em;">
+      <strong>TOTAL:</strong>
+      <strong>S/ ${totales.total.toFixed(2)}</strong>
+    </div>
+    <hr style="border-top: 1px dashed #000;">
+    <div class="text-center">
+      <small>Gracias por su compra</small><br>
+      <small>www.libroslibres.com</small>
+    </div>
+  `;
+}
+
+// ── Guardar factura y detalles en backend ─────────────
+async function guardarFactura(tipo, numero, carrito, totales, user) {
+  try {
+    const ahora = new Date();
+    const payload = {
+      tipo_comprobante: tipo,
+      numero_documento: numero,
+      cliente_nombre: user.nombre || "",
+      cliente_apellido_paterno: user.apellido_paterno || "",
+      cliente_apellido_materno: user.apellido_materno || "",
+      cliente_numero_doc: user.numero_documento || "",
+      cliente_direccion: user.direccion || "",
+      subtotal: totales.subtotal,
+      igv: totales.igv,
+      total: totales.total,
+      estado: "Valido",
+      dia: ahora.getDate(),
+      mes: ahora.getMonth() + 1,
+      anio: ahora.getFullYear(),
+      detalles: carrito.map((item, i) => ({
+        numero_item: i + 1,
+        codigo: item.id || "",
+        descripcion: item.titulo || "",
+        precio_unitario: item.precio,
+        cantidad: item.cantidad,
+        total_item: item.precio * item.cantidad
+      }))
+    };
+
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/facturas`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      console.warn("No se pudo guardar la factura en backend (no crítico)");
+    }
+  } catch (err) {
+    console.warn("Error al guardar factura:", err.message);
+  }
+}
+
 // ── Mostrar modal de proceso de pago ──────────────────
 function mostrarModalPago(claveMetodo) {
   const metodo = PASARELAS_PAGO[claveMetodo];
   if (!metodo) return;
 
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  const carrito = obtenerCarrito();
+  const totales = calcularTotales(carrito);
+  const tipoComprobante = document.getElementById("tipo-comprobante")?.value || "BOLETA";
+
   // Actualizar contenido del modal
-  document.getElementById("pago-modal-titulo").innerHTML = `<i class="${metodo.icono} me-2"></i>${metodo.titulo}`;
   document.getElementById("pago-modal-icono").innerHTML = `<i class="${metodo.icono} display-1" style="color: ${metodo.color};"></i>`;
   document.getElementById("pago-modal-mensaje").textContent = metodo.titulo;
   document.getElementById("pago-modal-descripcion").textContent = metodo.descripcion;
@@ -348,15 +506,27 @@ function mostrarModalPago(claveMetodo) {
   `).join("");
   document.getElementById("pago-modal-pasos").innerHTML = pasosHtml;
 
-  // Configurar botón continuar
+  // Configurar botón confirmar
   const btnContinuar = document.getElementById("btn-pago-continuar");
-  btnContinuar.onclick = () => {
-    if (metodo.url) {
-      window.open(metodo.url, "_blank");
-    }
-    const modal = bootstrap.Modal.getInstance(document.getElementById("modal-pago-proceso"));
-    modal.hide();
-    mostrarToast("Pago procesado exitosamente (simulado)");
+  btnContinuar.onclick = async () => {
+    // Cerrar modal de pago
+    const modalPago = bootstrap.Modal.getInstance(document.getElementById("modal-pago-proceso"));
+    modalPago.hide();
+
+    // Generar comprobante
+    const numero = await generarNumeroComprobante(tipoComprobante);
+    const ticketHTML = generarTicketHTML(tipoComprobante, numero, carrito, totales, user);
+
+    // Mostrar ticket
+    document.getElementById("ticket-content").innerHTML = ticketHTML;
+    const modalTicket = new bootstrap.Modal(document.getElementById("modal-ticket"));
+    modalTicket.show();
+
+    // Guardar en backend
+    await guardarFactura(tipoComprobante, numero, carrito, totales, user);
+
+    // Vaciar carrito
+    vaciarCarrito();
   };
 
   // Mostrar modal
@@ -401,6 +571,12 @@ function manejarPago() {
         return;
       }
 
+      const tipoComprobante = document.getElementById("tipo-comprobante");
+      if (!tipoComprobante || !tipoComprobante.value) {
+        mostrarToast("Debes seleccionar un tipo de comprobante");
+        return;
+      }
+
       mostrarModalPago(formaPago.value);
     });
   }
@@ -411,6 +587,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarCarrito();
   manejarPago();
   cargarFormasPago();
+  cargarTiposComprobante();
+  aplicarReglaComprobante();
   actualizarContadorCarrito();
 
   // Configurar botón vaciar carrito

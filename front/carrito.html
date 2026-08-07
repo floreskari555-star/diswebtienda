@@ -122,6 +122,15 @@
                   </select>
                 </div>
 
+                <!-- Tipo de comprobante -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Tipo de comprobante</label>
+                  <select class="form-select" id="tipo-comprobante" required>
+                    <option value="" selected>Seleccionar comprobante...</option>
+                  </select>
+                  <small class="text-muted" id="comprobante-hint"></small>
+                </div>
+
                 <button class="btn w-100 btn-lg" id="btn-pagar" style="background-color: var(--accent-color); color: #fff;">
                   <i class="bi bi-credit-card me-2"></i>PAGAR
                 </button>
@@ -174,19 +183,45 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header" style="background-color: var(--brand-primary); color: white;">
-          <h5 class="modal-title" id="pago-modal-titulo"><i class="bi bi-credit-card me-2"></i>Proceso de Pago</h5>
+          <h5 class="modal-title"><i class="bi bi-credit-card me-2"></i>Proceso de Pago</h5>
         </div>
         <div class="modal-body text-center py-4">
           <div id="pago-modal-icono" class="mb-3"></div>
           <h5 id="pago-modal-mensaje" class="mb-3"></h5>
           <p id="pago-modal-descripcion" class="text-muted"></p>
-          <div id="pago-modal-pasos" class="text-start mt-4"></div>
+          <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>PROCESO REALIZANDOSE EN UN SERVICIO EXTERNO A LA TIENDA</strong>
+          </div>
+          <div id="pago-modal-pasos" class="text-start mt-3"></div>
         </div>
         <div class="modal-footer justify-content-center">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="button" class="btn px-4" id="btn-pago-continuar" style="background-color: var(--accent-color); color: #fff;">
-            <i class="bi bi-box-arrow-up-right me-1"></i>Continuar
+            <i class="bi bi-check-circle me-1"></i>Confirmar Pago
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ticket de venta -->
+  <div class="modal fade" id="modal-ticket" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: #28a745; color: white;">
+          <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Compra Realizada Exitosamente</h5>
+        </div>
+        <div class="modal-body">
+          <div id="ticket-content" class="border rounded p-4" style="background: #fff; font-family: 'Courier New', monospace; max-width: 500px; margin: 0 auto;">
+            <!-- Ticket generado dinámicamente -->
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <a href="index.html" class="btn px-4" style="background-color: var(--accent-color); color: #fff;">
+            <i class="bi bi-collection me-1"></i>Seguir Comprando
+          </a>
         </div>
       </div>
     </div>
