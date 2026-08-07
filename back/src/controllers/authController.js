@@ -6,14 +6,22 @@ const { supabase, supabaseAdmin } = require("../config/supabase");
 const registro = async (req, res) => {
   console.log("📝 [AUTH] Registro de cliente");
 
-  const { nombre, apellido, telefono, direccion, email, password } = req.body;
+  const {
+    nombre, apellido_paterno, apellido_materno,
+    tipo_documento, numero_documento,
+    departamento, provincia, distrito, ubigeo,
+    telefono, direccion, email, password
+  } = req.body;
+
+  // Aceptar "apellido" como alias de "apellido_paterno"
+  const paterno = apellido_paterno || req.body.apellido || "";
 
   // Validaciones
-  if (!nombre || !apellido || !email || !password) {
+  if (!nombre || !paterno || !email || !password) {
     console.log("❌ [AUTH] Faltan campos obligatorios");
     return res.status(400).json({ 
       error: "Faltan campos obligatorios",
-      requeridos: ["nombre", "apellido", "email", "password"]
+      requeridos: ["nombre", "apellido_paterno", "email", "password"]
     });
   }
 
@@ -25,7 +33,14 @@ const registro = async (req, res) => {
       email_confirm: true,
       user_metadata: {
         nombre,
-        apellido,
+        apellido_paterno: paterno,
+        apellido_materno: apellido_materno || "",
+        tipo_documento: tipo_documento || "",
+        numero_documento: numero_documento || "",
+        departamento: departamento || "",
+        provincia: provincia || "",
+        distrito: distrito || "",
+        ubigeo: ubigeo || "",
         telefono: telefono || "",
         direccion: direccion || "",
         correo: email,
@@ -55,7 +70,7 @@ const registro = async (req, res) => {
         id: data.user.id,
         email: data.user.email,
         nombre,
-        apellido,
+        apellido_paterno: paterno,
         rol: "cliente"
       }
     });
@@ -172,7 +187,16 @@ const login = async (req, res) => {
         id: data.user.id,
         email: data.user.email,
         nombre: perfil.nombre,
-        apellido: perfil.apellido,
+        apellido_paterno: perfil.apellido_paterno,
+        apellido_materno: perfil.apellido_materno || "",
+        tipo_documento: perfil.tipo_documento || "",
+        numero_documento: perfil.numero_documento || "",
+        departamento: perfil.departamento || "",
+        provincia: perfil.provincia || "",
+        distrito: perfil.distrito || "",
+        ubigeo: perfil.ubigeo || "",
+        telefono: perfil.telefono || "",
+        direccion: perfil.direccion || "",
         rol: perfil.rol,
         editorial_id: perfil.editorial_id || null
       },
@@ -297,18 +321,31 @@ const obtenerPerfil = async (req, res) => {
 const actualizarPerfil = async (req, res) => {
   console.log("✏️ [AUTH] Actualizar perfil");
 
-  const { nombre, apellido, telefono, direccion } = req.body;
+  const {
+    nombre, apellido_paterno, apellido_materno,
+    tipo_documento, numero_documento,
+    departamento, provincia, distrito, ubigeo,
+    telefono, direccion
+  } = req.body;
 
   try {
+    const updates = {};
+    if (nombre !== undefined) updates.nombre = nombre;
+    if (apellido_paterno !== undefined) updates.apellido_paterno = apellido_paterno;
+    if (apellido_materno !== undefined) updates.apellido_materno = apellido_materno;
+    if (tipo_documento !== undefined) updates.tipo_documento = tipo_documento;
+    if (numero_documento !== undefined) updates.numero_documento = numero_documento;
+    if (departamento !== undefined) updates.departamento = departamento;
+    if (provincia !== undefined) updates.provincia = provincia;
+    if (distrito !== undefined) updates.distrito = distrito;
+    if (ubigeo !== undefined) updates.ubigeo = ubigeo;
+    if (telefono !== undefined) updates.telefono = telefono;
+    if (direccion !== undefined) updates.direccion = direccion;
+    updates.actualizado_al = new Date().toISOString();
+
     const { data, error } = await supabase
       .from("perfiles")
-      .update({
-        nombre,
-        apellido,
-        telefono,
-        direccion,
-        actualizado_al: new Date().toISOString()
-      })
+      .update(updates)
       .eq("id", req.user.id)
       .select()
       .single();
@@ -318,7 +355,7 @@ const actualizarPerfil = async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    console.log("✅ [AUTH] Perfil actualizado:", data.email);
+    console.log("✅ [AUTH] Perfil actualizado:", data.correo);
 
     res.json({
       mensaje: "Perfil actualizado exitosamente",

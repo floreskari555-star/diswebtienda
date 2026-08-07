@@ -72,17 +72,37 @@
           <div id="alert-success" class="alert alert-success d-none" role="alert"></div>
 
           <form id="register-form">
+            <!-- Nombre y Apellidos -->
             <div class="row">
-              <div class="col-md-6 mb-3">
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Nombre *</label>
                 <input type="text" class="form-control" id="reg-nombre" placeholder="Tu nombre" required>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Apellido *</label>
-                <input type="text" class="form-control" id="reg-apellido" placeholder="Tu apellido" required>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Apellido Paterno *</label>
+                <input type="text" class="form-control" id="reg-apellido-paterno" placeholder="Apellido paterno" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Apellido Materno</label>
+                <input type="text" class="form-control" id="reg-apellido-materno" placeholder="Apellido materno">
               </div>
             </div>
 
+            <!-- Tipo de documento y Número -->
+            <div class="row">
+              <div class="col-md-5 mb-3">
+                <label class="form-label">Tipo de Documento *</label>
+                <select class="form-select" id="reg-tipo-documento" required>
+                  <option value="" selected>Seleccionar...</option>
+                </select>
+              </div>
+              <div class="col-md-7 mb-3">
+                <label class="form-label">Número de Documento *</label>
+                <input type="text" class="form-control" id="reg-numero-documento" placeholder="Número de documento" required>
+              </div>
+            </div>
+
+            <!-- Email -->
             <div class="mb-3">
               <label class="form-label">Correo electrónico *</label>
               <div class="input-group">
@@ -91,6 +111,7 @@
               </div>
             </div>
 
+            <!-- Contraseña -->
             <div class="mb-3">
               <label class="form-label">Contraseña *</label>
               <div class="input-group">
@@ -102,6 +123,7 @@
               </div>
             </div>
 
+            <!-- Confirmar contraseña -->
             <div class="mb-3">
               <label class="form-label">Confirmar contraseña *</label>
               <div class="input-group">
@@ -110,14 +132,39 @@
               </div>
             </div>
 
+            <!-- Teléfono -->
             <div class="mb-3">
               <label class="form-label">Teléfono (opcional)</label>
               <input type="tel" class="form-control" id="reg-telefono" placeholder="Tu teléfono">
             </div>
 
+            <!-- Dirección: Departamento → Provincia → Distrito -->
+            <label class="form-label fw-bold">Ubicación</label>
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label small">Departamento *</label>
+                <select class="form-select" id="reg-departamento" required>
+                  <option value="" selected>Seleccionar...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small">Provincia *</label>
+                <select class="form-select" id="reg-provincia" required disabled>
+                  <option value="" selected>Seleccionar...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small">Distrito *</label>
+                <select class="form-select" id="reg-distrito" required disabled>
+                  <option value="" selected>Seleccionar...</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dirección detallada -->
             <div class="mb-3">
-              <label class="form-label">Dirección (opcional)</label>
-              <input type="text" class="form-control" id="reg-direccion" placeholder="Tu dirección">
+              <label class="form-label">Dirección (calle, número, etc.)</label>
+              <input type="text" class="form-control" id="reg-direccion" placeholder="Av. Principal 123">
             </div>
 
             <button type="submit" class="btn w-100 mb-3" id="btn-submit" style="background-color: var(--accent-color); color: #fff;">
@@ -143,17 +190,122 @@
   <script src="public/js/config.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Verificar si ya hay sesión
       const user = JSON.parse(sessionStorage.getItem("user"));
       if (user) {
         window.location.href = "index.html";
         return;
       }
 
+      cargarTiposDocumento();
+      cargarDepartamentos();
       configurarFormularioRegistro();
       configurarTogglePassword();
     });
 
+    // ── Cargar tipos de documento desde la tabla maestra ──
+    async function cargarTiposDocumento() {
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/tablas-maestras/TipoDocumento`);
+        const data = await res.json();
+        const select = document.getElementById("reg-tipo-documento");
+        data.items.forEach(item => {
+          const opt = document.createElement("option");
+          opt.value = item.clave;
+          opt.textContent = item.valor;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error al cargar tipos de documento:", err);
+      }
+    }
+
+    // ── Cargar departamentos ──
+    async function cargarDepartamentos() {
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/ubigeos/departamentos`);
+        const data = await res.json();
+        const select = document.getElementById("reg-departamento");
+        data.departamentos.forEach(dep => {
+          const opt = document.createElement("option");
+          opt.value = dep.code;
+          opt.textContent = dep.name;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        console.error("Error al cargar departamentos:", err);
+      }
+    }
+
+    // ── Cascada: Departamento → Provincias ──
+    document.getElementById("reg-departamento").addEventListener("change", async function() {
+      const codigo = this.value;
+      const selectProvincia = document.getElementById("reg-provincia");
+      const selectDistrito = document.getElementById("reg-distrito");
+
+      selectProvincia.innerHTML = '<option value="" selected>Seleccionar...</option>';
+      selectProvincia.disabled = true;
+      selectDistrito.innerHTML = '<option value="" selected>Seleccionar...</option>';
+      selectDistrito.disabled = true;
+
+      if (!codigo) return;
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/ubigeos/provincias/${codigo}`);
+        const data = await res.json();
+        data.provincias.forEach(prov => {
+          const opt = document.createElement("option");
+          opt.value = prov.code;
+          opt.textContent = prov.name;
+          selectProvincia.appendChild(opt);
+        });
+        selectProvincia.disabled = false;
+      } catch (err) {
+        console.error("Error al cargar provincias:", err);
+      }
+    });
+
+    // ── Cascada: Provincia → Distritos ──
+    document.getElementById("reg-provincia").addEventListener("change", async function() {
+      const codigo = this.value;
+      const selectDistrito = document.getElementById("reg-distrito");
+
+      selectDistrito.innerHTML = '<option value="" selected>Seleccionar...</option>';
+      selectDistrito.disabled = true;
+
+      if (!codigo) return;
+
+      try {
+        const res = await fetch(`${CONFIG.BACKEND_URL}/api/ubigeos/distritos/${codigo}`);
+        const data = await res.json();
+        data.distritos.forEach(dist => {
+          const opt = document.createElement("option");
+          opt.value = dist.code;
+          opt.textContent = dist.name;
+          selectDistrito.appendChild(opt);
+        });
+        selectDistrito.disabled = false;
+      } catch (err) {
+        console.error("Error al cargar distritos:", err);
+      }
+    });
+
+    // ── Obtener nombres de ubigeo para enviar al backend ──
+    function obtenerNombresUbigeo() {
+      const dep = document.getElementById("reg-departamento");
+      const prov = document.getElementById("reg-provincia");
+      const dist = document.getElementById("reg-distrito");
+
+      return {
+        departamentoCodigo: dep.value,
+        provinciaCodigo: prov.value,
+        distritoCodigo: dist.value,
+        departamentoNombre: dep.options[dep.selectedIndex]?.text || "",
+        provinciaNombre: prov.options[prov.selectedIndex]?.text || "",
+        distritoNombre: dist.options[dist.selectedIndex]?.text || ""
+      };
+    }
+
+    // ── Formulario de registro ──
     function configurarFormularioRegistro() {
       const form = document.getElementById("register-form");
       if (!form) return;
@@ -162,12 +314,17 @@
         e.preventDefault();
 
         const nombre = document.getElementById("reg-nombre").value.trim();
-        const apellido = document.getElementById("reg-apellido").value.trim();
+        const apellidoPaterno = document.getElementById("reg-apellido-paterno").value.trim();
+        const apellidoMaterno = document.getElementById("reg-apellido-materno").value.trim();
+        const tipoDocumento = document.getElementById("reg-tipo-documento").value;
+        const numeroDocumento = document.getElementById("reg-numero-documento").value.trim();
         const email = document.getElementById("reg-email").value.trim();
         const password = document.getElementById("reg-password").value;
         const passwordConfirm = document.getElementById("reg-password-confirm").value;
         const telefono = document.getElementById("reg-telefono").value.trim();
         const direccion = document.getElementById("reg-direccion").value.trim();
+
+        const ubigeoInfo = obtenerNombresUbigeo();
 
         const btnSubmit = document.getElementById("btn-submit");
         const btnText = document.getElementById("btn-text");
@@ -175,18 +332,15 @@
         const alertError = document.getElementById("alert-error");
         const alertSuccess = document.getElementById("alert-success");
 
-        // Ocultar alertas
         alertError.classList.add("d-none");
         alertSuccess.classList.add("d-none");
 
-        // Validar contraseñas
         if (password !== passwordConfirm) {
           alertError.textContent = "Las contraseñas no coinciden";
           alertError.classList.remove("d-none");
           return;
         }
 
-        // Mostrar loading
         btnText.classList.add("d-none");
         btnSpinner.classList.remove("d-none");
         btnSubmit.disabled = true;
@@ -194,16 +348,21 @@
         try {
           const response = await fetch(`${CONFIG.BACKEND_URL}/api/auth/registro`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               nombre,
-              apellido,
-              email,
-              password,
+              apellido_paterno: apellidoPaterno,
+              apellido_materno: apellidoMaterno,
+              tipo_documento: tipoDocumento,
+              numero_documento: numeroDocumento,
+              departamento: ubigeoInfo.departamentoNombre,
+              provincia: ubigeoInfo.provinciaNombre,
+              distrito: ubigeoInfo.distritoNombre,
+              ubigeo: ubigeoInfo.distritoCodigo,
               telefono,
-              direccion
+              direccion,
+              email,
+              password
             })
           });
 
@@ -213,11 +372,9 @@
             throw new Error(data.error || "Error al registrarse");
           }
 
-          // Éxito
           alertSuccess.textContent = "Cuenta creada exitosamente. Redirigiendo al login...";
           alertSuccess.classList.remove("d-none");
 
-          // Redirigir al login después de 2 segundos
           setTimeout(() => {
             window.location.href = "login.html";
           }, 2000);

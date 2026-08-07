@@ -18,6 +18,8 @@ const editorialRoutes = require("./routes/editorialRoutes");
 const solicitudRoutes = require("./routes/solicitudRoutes");
 const pagoRoutes = require("./routes/pagoRoutes");
 const gestionRoutes = require("./routes/gestionRoutes");
+const ubigeoRoutes = require("./routes/ubigeoRoutes");
+const tablaMaestraRoutes = require("./routes/tablaMaestraRoutes");
 
 const app = express();
 
@@ -70,6 +72,8 @@ app.use("/api", bookRoutes); // GET/POST/PUT/DELETE /api/libros/*
 app.use("/api", editorialRoutes); // GET/POST/PUT/DELETE /api/editoriales/*
 app.use("/api", solicitudRoutes); // GET/POST/PUT/DELETE /api/solicitudes/*
 app.use("/api", pagoRoutes); // GET/POST/PATCH/DELETE /api/pagos/*
+app.use("/api", ubigeoRoutes); // GET /api/ubigeos/*
+app.use("/api", tablaMaestraRoutes); // GET/POST/PUT/DELETE /api/tablas-maestras/*
 app.use(gestionRoutes);      // GET/POST /gestion/*
 
 // ── Swagger UI ───────────────────────────────────────
