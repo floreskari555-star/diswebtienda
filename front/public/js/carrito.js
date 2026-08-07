@@ -366,13 +366,6 @@ function aplicarReglaComprobante() {
   }
 }
 
-// ── Generar número de comprobante ─────────────────────
-async function generarNumeroComprobante(tipo) {
-  const prefijo = tipo === "FACTURA" ? "F001-" : "B001-";
-  const timestamp = Date.now().toString().slice(-7);
-  return prefijo + timestamp;
-}
-
 // ── Generar ticket HTML ───────────────────────────────
 function generarTicketHTML(tipo, numero, carrito, totales, user) {
   const ahora = new Date();
@@ -524,12 +517,11 @@ function descargarComprobantePDF(tipo, numero, carritoItems, totales, user) {
 }
 
 // ── Guardar factura y detalles en backend ─────────────
-async function guardarFactura(tipo, numero, carrito, totales, user) {
+async function guardarFactura(tipo, carrito, totales, user) {
   try {
     const ahora = new Date();
     const payload = {
       tipo_comprobante: tipo,
-      numero_documento: numero,
       cliente_id: user.id || null,
       cliente_nombre: user.nombre || "",
       cliente_apellido_paterno: user.apellido_paterno || "",
@@ -539,7 +531,6 @@ async function guardarFactura(tipo, numero, carrito, totales, user) {
       subtotal: totales.subtotal,
       igv: totales.igv,
       total: totales.total,
-      estado: "Valido",
       dia: ahora.getDate(),
       mes: ahora.getMonth() + 1,
       anio: ahora.getFullYear(),
@@ -563,10 +554,15 @@ async function guardarFactura(tipo, numero, carrito, totales, user) {
     });
 
     if (!res.ok) {
-      console.warn("No se pudo guardar la factura en backend (no crítico)");
+      console.warn("No se pudo guardar la factura");
+      return null;
     }
+
+    const data = await res.json();
+    return data.factura;
   } catch (err) {
     console.warn("Error al guardar factura:", err.message);
+    return null;
   }
 }
 
@@ -601,11 +597,15 @@ function mostrarModalPago(claveMetodo) {
     const modalPago = bootstrap.Modal.getInstance(document.getElementById("modal-pago-proceso"));
     modalPago.hide();
 
-    // Generar comprobante
-    const numero = await generarNumeroComprobante(tipoComprobante);
-    const ticketHTML = generarTicketHTML(tipoComprobante, numero, carrito, totales, user);
+    // Guardar en backend (genera el correlativo)
+    const factura = await guardarFactura(tipoComprobante, carrito, totales, user);
+    const numero = factura ? factura.numero_documento : "---";
+    const fecha = factura
+      ? `${String(factura.dia).padStart(2, "0")}/${String(factura.mes).padStart(2, "0")}/${factura.anio}`
+      : `${String(new Date().getDate()).padStart(2, "0")}/${String(new Date().getMonth() + 1).padStart(2, "0")}/${new Date().getFullYear()}`;
 
-    // Mostrar ticket
+    // Generar y mostrar ticket
+    const ticketHTML = generarTicketHTML(tipoComprobante, numero, carrito, totales, user);
     document.getElementById("ticket-content").innerHTML = ticketHTML;
     const modalTicket = new bootstrap.Modal(document.getElementById("modal-ticket"));
     modalTicket.show();
@@ -614,9 +614,6 @@ function mostrarModalPago(claveMetodo) {
     document.getElementById("btn-descargar-pdf").onclick = () => {
       descargarComprobantePDF(tipoComprobante, numero, carrito, totales, user);
     };
-
-    // Guardar en backend
-    await guardarFactura(tipoComprobante, numero, carrito, totales, user);
 
     // Vaciar carrito
     vaciarCarrito();

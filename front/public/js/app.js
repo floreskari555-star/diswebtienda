@@ -143,6 +143,19 @@ function configurarFiltros() {
       params.append("editorial_id", filterEditorial.value);
     }
 
+    if (filterPrecio && filterPrecio.value) {
+      const rango = filterPrecio.value;
+      if (rango === "0-20") {
+        params.append("precio_min", "0");
+        params.append("precio_max", "20");
+      } else if (rango === "20-50") {
+        params.append("precio_min", "20");
+        params.append("precio_max", "50");
+      } else if (rango === "50+") {
+        params.append("precio_min", "50");
+      }
+    }
+
     const queryString = params.toString();
     if (queryString) url += "&" + queryString;
 

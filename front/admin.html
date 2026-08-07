@@ -857,11 +857,26 @@
               <button class="btn btn-outline-primary btn-sm" onclick="verFacturaAdmin('${f.id}')">
                 <i class="bi bi-eye"></i>
               </button>
+              ${f.estado === 'Valido' ? `<button class="btn btn-outline-danger btn-sm" onclick="anularFacturaAdmin('${f.id}', '${f.numero_documento}')">
+                <i class="bi bi-x-circle"></i>
+              </button>` : ''}
             </td>
           </tr>
         `).join("");
       } catch (err) {
         console.error(err);
+      }
+    }
+
+    async function anularFacturaAdmin(facturaId, numero) {
+      if (!confirm(`¿Estás seguro de anular el comprobante ${numero}?\nEsta acción no se puede deshacer.`)) return;
+      try {
+        const r = await api(`/api/facturas/${facturaId}/anular`, { method: "PATCH" });
+        if (r.error) { alert("Error: " + r.error); return; }
+        alert(r.mensaje);
+        cargarFacturasAdmin();
+      } catch (e) {
+        alert("Error al anular comprobante");
       }
     }
 

@@ -1,104 +1,59 @@
-/* | Nombre: facturaController.js | Finalidad: Consulta de facturas emitidas a clientes. */
+/* | Nombre: facturaController.js | Finalidad: Consulta, creación y anulación de comprobantes. */
 
 const { supabaseAdmin } = require("../config/supabase");
 
-// ── Historial de facturas del cliente autenticado ──────
-const historialCliente = async (req, res) => {
-  console.log("🧾 [FACTURAS] Historial del cliente:", req.user.id);
+// ── Obtener siguiente correlativo de tablas_maestras ──
+async function siguienteCorrelativo(tipo) {
+  const clave = tipo === "FACTURA" ? "FACTURA" : "BOLETA";
+  const prefijo = tipo === "FACTURA" ? "F001-" : "B001-";
 
-  try {
-    const { data: facturas, error } = await supabaseAdmin
-      .from("facturas")
-      .select("*, facturas_detalles(*)")
-      .eq("cliente_id", req.user.id)
-      .order("creado_el", { ascending: false });
+  const { data: registro, error: readError } = await supabaseAdmin
+    .from("tablas_maestras")
+    .select("id, valor")
+    .eq("tabla", "ultdoc")
+    .eq("clave", clave)
+    .single();
 
-    if (error) {
-      console.log("❌ [FACTURAS] Error:", error.message);
-      return res.status(400).json({ error: error.message });
-    }
-
-    console.log("✅ [FACTURAS] Total facturas del cliente:", facturas.length);
-
-    res.json({
-      total: facturas.length,
-      facturas
-    });
-  } catch (err) {
-    console.log("❌ [FACTURAS] Error inesperado:", err.message);
-    return res.status(500).json({ error: "Error al obtener historial de facturas" });
+  if (readError || !registro) {
+    throw new Error("No se encontró correlativo para " + clave);
   }
-};
 
-// ── Listar todas las facturas (admin) ──────────────────
-const listarFacturas = async (req, res) => {
-  console.log("🧾 [FACTURAS] Listar todas (admin)");
+  const actual = parseInt(registro.valor, 10) || 0;
+  const siguiente = actual + 1;
+  const numeroFormateado = String(siguiente).padStart(7, "0");
 
-  try {
-    let query = supabaseAdmin
-      .from("facturas")
-      .select("*, facturas_detalles(*)")
-      .order("creado_el", { ascending: false });
+  const { error: updateError } = await supabaseAdmin
+    .from("tablas_maestras")
+    .update({ valor: numeroFormateado })
+    .eq("id", registro.id);
 
-    const { data: facturas, error } = await query;
-
-    if (error) {
-      console.log("❌ [FACTURAS] Error:", error.message);
-      return res.status(400).json({ error: error.message });
-    }
-
-    console.log("✅ [FACTURAS] Total facturas:", facturas.length);
-
-    res.json({
-      total: facturas.length,
-      facturas
-    });
-  } catch (err) {
-    console.log("❌ [FACTURAS] Error inesperado:", err.message);
-    return res.status(500).json({ error: "Error al listar facturas" });
+  if (updateError) {
+    throw new Error("Error al actualizar correlativo: " + updateError.message);
   }
-};
 
-// ── Obtener factura por ID ────────────────────────────
-const obtenerFactura = async (req, res) => {
-  console.log("🧾 [FACTURAS] Obtener por ID:", req.params.id);
-
-  try {
-    const { data: factura, error } = await supabaseAdmin
-      .from("facturas")
-      .select("*, facturas_detalles(*)")
-      .eq("id", req.params.id)
-      .single();
-
-    if (error || !factura) {
-      return res.status(404).json({ error: "Factura no encontrada" });
-    }
-
-    res.json({ factura });
-  } catch (err) {
-    console.log("❌ [FACTURAS] Error inesperado:", err.message);
-    return res.status(500).json({ error: "Error al obtener factura" });
-  }
-};
+  return prefijo + numeroFormateado;
+}
 
 // ── Crear factura con detalles ────────────────────────
 const crearFactura = async (req, res) => {
   console.log("🧾 [FACTURAS] Crear nueva factura");
 
   const {
-    tipo_comprobante, numero_documento,
+    tipo_comprobante,
     cliente_id, cliente_nombre, cliente_apellido_paterno, cliente_apellido_materno,
     cliente_numero_doc, cliente_direccion,
     subtotal, igv, total,
-    estado, dia, mes, anio,
+    dia, mes, anio,
     detalles
   } = req.body;
 
-  if (!tipo_comprobante || !numero_documento) {
-    return res.status(400).json({ error: "tipo_comprobante y numero_documento son requeridos" });
+  if (!tipo_comprobante) {
+    return res.status(400).json({ error: "tipo_comprobante es requerido" });
   }
 
   try {
+    const numero_documento = await siguienteCorrelativo(tipo_comprobante);
+
     const { data: factura, error: facturaError } = await supabaseAdmin
       .from("facturas")
       .insert({
@@ -113,7 +68,7 @@ const crearFactura = async (req, res) => {
         subtotal: subtotal || 0,
         igv: igv || 0,
         total: total || 0,
-        estado: estado || "Valido",
+        estado: "Valido",
         dia: dia || null,
         mes: mes || null,
         anio: anio || null
@@ -122,13 +77,12 @@ const crearFactura = async (req, res) => {
       .single();
 
     if (facturaError) {
-      console.log("❌ [FACTURAS] Error al crear factura:", facturaError.message);
+      console.log("❌ [FACTURAS] Error al crear:", facturaError.message);
       return res.status(400).json({ error: facturaError.message });
     }
 
-    console.log("✅ [FACTURAS] Factura creada:", factura.numero_documento);
+    console.log("✅ [FACTURAS] Creada:", numero_documento);
 
-    // Insertar detalles
     if (detalles && detalles.length > 0) {
       const detallesInsert = detalles.map(d => ({
         factura_id: factura.id,
@@ -145,22 +99,118 @@ const crearFactura = async (req, res) => {
         .insert(detallesInsert);
 
       if (detallesError) {
-        console.log("❌ [FACTURAS] Error al crear detalles:", detallesError.message);
+        console.log("❌ [FACTURAS] Error detalles:", detallesError.message);
       }
     }
 
-    res.status(201).json({
-      mensaje: "Factura creada exitosamente",
-      factura
-    });
+    res.status(201).json({ mensaje: "Factura creada", factura });
   } catch (err) {
     console.log("❌ [FACTURAS] Error inesperado:", err.message);
-    return res.status(500).json({ error: "Error al crear factura" });
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// ── Anular factura ────────────────────────────────────
+const anularFactura = async (req, res) => {
+  console.log("🧾 [FACTURAS] Anular:", req.params.id);
+
+  try {
+    const { data: factura, error: findError } = await supabaseAdmin
+      .from("facturas")
+      .select("id, estado, numero_documento")
+      .eq("id", req.params.id)
+      .single();
+
+    if (findError || !factura) {
+      return res.status(404).json({ error: "Factura no encontrada" });
+    }
+
+    if (factura.estado === "Anulado") {
+      return res.status(400).json({ error: "La factura ya está anulada" });
+    }
+
+    const { error } = await supabaseAdmin
+      .from("facturas")
+      .update({ estado: "Anulado" })
+      .eq("id", req.params.id);
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log("✅ [FACTURAS] Anulada:", factura.numero_documento);
+    res.json({ mensaje: "Comprobante anulado exitosamente" });
+  } catch (err) {
+    console.log("❌ [FACTURAS] Error inesperado:", err.message);
+    return res.status(500).json({ error: "Error al anular factura" });
+  }
+};
+
+// ── Historial del cliente ─────────────────────────────
+const historialCliente = async (req, res) => {
+  console.log("🧾 [FACTURAS] Historial del cliente:", req.user.id);
+
+  try {
+    const { data: facturas, error } = await supabaseAdmin
+      .from("facturas")
+      .select("*, facturas_detalles(*)")
+      .eq("cliente_id", req.user.id)
+      .order("creado_el", { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ total: facturas.length, facturas });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener historial" });
+  }
+};
+
+// ── Listar todas las facturas (admin) ─────────────────
+const listarFacturas = async (req, res) => {
+  console.log("🧾 [FACTURAS] Listar todas (admin)");
+
+  try {
+    const { data: facturas, error } = await supabaseAdmin
+      .from("facturas")
+      .select("*, facturas_detalles(*)")
+      .order("creado_el", { ascending: false });
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.json({ total: facturas.length, facturas });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al listar facturas" });
+  }
+};
+
+// ── Obtener factura por ID ───────────────────────────
+const obtenerFactura = async (req, res) => {
+  console.log("🧾 [FACTURAS] Obtener por ID:", req.params.id);
+
+  try {
+    const { data: factura, error } = await supabaseAdmin
+      .from("facturas")
+      .select("*, facturas_detalles(*)")
+      .eq("id", req.params.id)
+      .single();
+
+    if (error || !factura) {
+      return res.status(404).json({ error: "Factura no encontrada" });
+    }
+
+    res.json({ factura });
+  } catch (err) {
+    return res.status(500).json({ error: "Error al obtener factura" });
   }
 };
 
 module.exports = {
   crearFactura,
+  anularFactura,
   historialCliente,
   listarFacturas,
   obtenerFactura

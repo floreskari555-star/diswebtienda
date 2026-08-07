@@ -7,7 +7,7 @@ const listarLibros = async (req, res) => {
   console.log("📚 [LIBROS] Listar libros");
 
   try {
-    const { editorial_id, search, activo } = req.query;
+    const { editorial_id, search, activo, precio_min, precio_max } = req.query;
 
     let query = supabaseAdmin
       .from("libros")
@@ -23,6 +23,14 @@ const listarLibros = async (req, res) => {
     if (search) {
       const termino = `%${search}%`;
       query = query.or(`titulo.ilike.${termino},autor.ilike.${termino}`);
+    }
+
+    // Filtro por precio
+    if (precio_min !== undefined) {
+      query = query.gte("precio", parseFloat(precio_min));
+    }
+    if (precio_max !== undefined) {
+      query = query.lte("precio", parseFloat(precio_max));
     }
 
     // Filtro por estado (solo admin puede ver inactivos)

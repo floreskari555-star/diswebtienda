@@ -1,12 +1,15 @@
-/* | Nombre: facturaRoutes.js | Finalidad: Define rutas para consulta de facturas. */
+/* | Nombre: facturaRoutes.js | Finalidad: Define rutas para comprobantes. */
 
 const express = require("express");
 const router = express.Router();
-const { crearFactura, historialCliente, listarFacturas, obtenerFactura } = require("../controllers/facturaController");
+const { crearFactura, anularFactura, historialCliente, listarFacturas, obtenerFactura } = require("../controllers/facturaController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
 // ── Crear factura (cliente autenticado) ───────────────
 router.post("/facturas", authenticate, crearFactura);
+
+// ── Anular factura (admin/super) ─────────────────────
+router.patch("/facturas/:id/anular", authenticate, authorize("admin", "super"), anularFactura);
 
 // ── Historial del cliente autenticado ─────────────────
 router.get("/facturas/mi-historial", authenticate, authorize("cliente", "super", "admin"), historialCliente);
