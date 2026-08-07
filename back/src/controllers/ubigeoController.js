@@ -1,17 +1,19 @@
-/* | Nombre: ubigeoController.js | Finalidad: Sirve datos de ubigeo del Perú usando ubigeo-fns. */
+/* | Nombre: ubigeoController.js | Finalidad: Sirve datos de ubigeo del Perú usando ubigeo-fns (ESM). */
 
-const {
-  getDepartments,
-  getProvinces,
-  getDistricts,
-  getUbigeoData,
-  validateUbigeo,
-  formatUbigeo
-} = require("ubigeo-fns");
+// ubigeo-fns es ESM-only, se carga con import() dinámico
+let ubigeo = null;
+
+async function getUbigeo() {
+  if (!ubigeo) {
+    ubigeo = await import("ubigeo-fns");
+  }
+  return ubigeo;
+}
 
 // ── Listar departamentos ──────────────────────────────
-const listarDepartamentos = (req, res) => {
+const listarDepartamentos = async (req, res) => {
   try {
+    const { getDepartments } = await getUbigeo();
     const departamentos = getDepartments();
     res.json({ departamentos });
   } catch (err) {
@@ -21,7 +23,7 @@ const listarDepartamentos = (req, res) => {
 };
 
 // ── Listar provincias por departamento ────────────────
-const listarProvincias = (req, res) => {
+const listarProvincias = async (req, res) => {
   const { codigo } = req.params;
 
   if (!codigo) {
@@ -29,6 +31,7 @@ const listarProvincias = (req, res) => {
   }
 
   try {
+    const { getProvinces } = await getUbigeo();
     const provincias = getProvinces(codigo);
     if (!provincias || provincias.length === 0) {
       return res.status(404).json({ error: "Departamento no encontrado" });
@@ -41,7 +44,7 @@ const listarProvincias = (req, res) => {
 };
 
 // ── Listar distritos por provincia ────────────────────
-const listarDistritos = (req, res) => {
+const listarDistritos = async (req, res) => {
   const { codigo } = req.params;
 
   if (!codigo) {
@@ -49,6 +52,7 @@ const listarDistritos = (req, res) => {
   }
 
   try {
+    const { getDistricts } = await getUbigeo();
     const distritos = getDistricts(codigo);
     if (!distritos || distritos.length === 0) {
       return res.status(404).json({ error: "Provincia no encontrada" });
@@ -61,7 +65,7 @@ const listarDistritos = (req, res) => {
 };
 
 // ── Validar y obtener datos de un ubigeo ──────────────
-const validarUbigeo = (req, res) => {
+const validarUbigeo = async (req, res) => {
   const { codigo } = req.params;
 
   if (!codigo) {
@@ -69,6 +73,7 @@ const validarUbigeo = (req, res) => {
   }
 
   try {
+    const { validateUbigeo, getUbigeoData, formatUbigeo } = await getUbigeo();
     const esValido = validateUbigeo(codigo);
     if (!esValido) {
       return res.status(404).json({ error: "Código ubigeo no válido", valido: false });
