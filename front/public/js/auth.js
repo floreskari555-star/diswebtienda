@@ -63,7 +63,16 @@ function configurarFormularioLogin() {
         id: data.usuario.id,
         email: data.usuario.email,
         nombre: data.usuario.nombre,
-        apellido: data.usuario.apellido,
+        apellido_paterno: data.usuario.apellido_paterno || "",
+        apellido_materno: data.usuario.apellido_materno || "",
+        tipo_documento: data.usuario.tipo_documento || "",
+        numero_documento: data.usuario.numero_documento || "",
+        departamento: data.usuario.departamento || "",
+        provincia: data.usuario.provincia || "",
+        distrito: data.usuario.distrito || "",
+        ubigeo: data.usuario.ubigeo || "",
+        telefono: data.usuario.telefono || "",
+        direccion: data.usuario.direccion || "",
         rol: data.usuario.rol,
         editorial_id: data.usuario.editorial_id || null,
         token: data.session.access_token
@@ -95,12 +104,15 @@ function configurarFormularioLogin() {
 function redirigirSegunRol(rol) {
   switch (rol) {
     case "admin":
+    case "super":
       window.location.href = "admin.html";
       break;
     case "proveedor":
       window.location.href = "proveedor.html";
       break;
     case "cliente":
+      window.location.href = "cliente.html";
+      break;
     default:
       window.location.href = "index.html";
       break;

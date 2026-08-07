@@ -20,6 +20,7 @@ const pagoRoutes = require("./routes/pagoRoutes");
 const gestionRoutes = require("./routes/gestionRoutes");
 const ubigeoRoutes = require("./routes/ubigeoRoutes");
 const tablaMaestraRoutes = require("./routes/tablaMaestraRoutes");
+const facturaRoutes = require("./routes/facturaRoutes");
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use("/api", solicitudRoutes); // GET/POST/PUT/DELETE /api/solicitudes/*
 app.use("/api", pagoRoutes); // GET/POST/PATCH/DELETE /api/pagos/*
 app.use("/api", ubigeoRoutes); // GET /api/ubigeos/*
 app.use("/api", tablaMaestraRoutes); // GET/POST/PUT/DELETE /api/tablas-maestras/*
+app.use("/api", facturaRoutes); // GET /api/facturas/*
 app.use(gestionRoutes);      // GET/POST /gestion/*
 
 // ── Swagger UI ───────────────────────────────────────

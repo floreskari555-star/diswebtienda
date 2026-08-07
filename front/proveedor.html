@@ -306,7 +306,7 @@
       }
 
       document.getElementById("user-info").innerHTML = `
-        <strong>${usuario.nombre} ${usuario.apellido}</strong><br>
+        <strong>${usuario.nombre} ${usuario.apellido_paterno || usuario.apellido || ""}</strong><br>
         <span class="badge bg-info">${usuario.rol}</span><br>
         <small class="mt-1 d-block"><i class="bi bi-building me-1"></i>${editorialNombre}</small>
       `;

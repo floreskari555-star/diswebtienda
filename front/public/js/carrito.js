@@ -436,6 +436,91 @@ function generarTicketHTML(tipo, numero, carrito, totales, user) {
   `;
 }
 
+// ── Descargar comprobante como PDF ────────────────────
+function descargarComprobantePDF(tipo, numero, carritoItems, totales, user) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "mm", format: [80, 200] });
+
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2, "0");
+  const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+  const anio = ahora.getFullYear();
+  const hora = ahora.toLocaleTimeString("es-PE");
+
+  const nombreCliente = `${user.nombre || ""} ${user.apellido_paterno || ""} ${user.apellido_materno || ""}`.trim();
+  const numDoc = user.numero_documento || "---";
+  const direccion = user.direccion || "---";
+
+  let y = 10;
+  const lineH = 5;
+  const centerX = 40;
+
+  doc.setFont("courier", "bold");
+  doc.setFontSize(10);
+  doc.text("LIBROSLIBRES LIBRERIA", centerX, y, { align: "center" }); y += lineH;
+  doc.setFont("courier", "normal");
+  doc.setFontSize(7);
+  doc.text("RUC: 20512345678", centerX, y, { align: "center" }); y += lineH - 1;
+  doc.text("Av. Principal 123, Lima - Lima", centerX, y, { align: "center" }); y += lineH - 1;
+  doc.text("Tel: (01) 123-4567", centerX, y, { align: "center" }); y += lineH + 1;
+
+  doc.setLineDashPattern([1, 1], 0);
+  doc.line(5, y, 75, y); y += lineH + 1;
+
+  doc.setFont("courier", "bold");
+  doc.setFontSize(8);
+  doc.text(`${tipo} N° ${numero}`, 5, y); y += lineH;
+  doc.setFont("courier", "normal");
+  doc.setFontSize(7);
+  doc.text(`Fecha: ${dia}/${mes}/${anio} ${hora}`, 5, y); y += lineH + 1;
+
+  doc.setLineDashPattern([1, 1], 0);
+  doc.line(5, y, 75, y); y += lineH + 1;
+
+  doc.setFontSize(7);
+  doc.text(`Cliente: ${nombreCliente}`, 5, y); y += lineH - 1;
+  doc.text(`${user.tipo_documento || "DOC"}: ${numDoc}`, 5, y); y += lineH - 1;
+  doc.text(`Direccion: ${direccion}`, 5, y); y += lineH + 1;
+
+  doc.setLineDashPattern([1, 1], 0);
+  doc.line(5, y, 75, y); y += lineH + 1;
+
+  doc.setFont("courier", "bold");
+  doc.text("DETALLE DE LA VENTA", 5, y); y += lineH + 1;
+  doc.setFont("courier", "normal");
+
+  carritoItems.forEach((item, i) => {
+    const precioTotal = (item.precio * item.cantidad).toFixed(2);
+    const nombreCorto = item.titulo.length > 28 ? item.titulo.substring(0, 28) + "..." : item.titulo;
+    doc.text(`${i + 1}. ${nombreCorto}`, 5, y); y += lineH - 1;
+    doc.text(`    x${item.cantidad}  S/ ${precioTotal}`, 5, y); y += lineH;
+  });
+
+  y += 1;
+  doc.setLineDashPattern([1, 1], 0);
+  doc.line(5, y, 75, y); y += lineH + 1;
+
+  doc.setFontSize(7);
+  doc.text(`Subtotal:`, 5, y);
+  doc.text(`S/ ${totales.subtotal.toFixed(2)}`, 75, y, { align: "right" }); y += lineH - 1;
+  doc.text(`IGV (18%):`, 5, y);
+  doc.text(`S/ ${totales.igv.toFixed(2)}`, 75, y, { align: "right" }); y += lineH - 1;
+  doc.setFont("courier", "bold");
+  doc.setFontSize(8);
+  doc.text(`TOTAL:`, 5, y);
+  doc.text(`S/ ${totales.total.toFixed(2)}`, 75, y, { align: "right" }); y += lineH + 1;
+
+  doc.setLineDashPattern([1, 1], 0);
+  doc.line(5, y, 75, y); y += lineH + 1;
+
+  doc.setFont("courier", "normal");
+  doc.setFontSize(7);
+  doc.text("Gracias por su compra", centerX, y, { align: "center" }); y += lineH - 1;
+  doc.text("www.libroslibres.com", centerX, y, { align: "center" });
+
+  doc.save(`${tipo}_${numero}.pdf`);
+}
+
 // ── Guardar factura y detalles en backend ─────────────
 async function guardarFactura(tipo, numero, carrito, totales, user) {
   try {
@@ -443,6 +528,7 @@ async function guardarFactura(tipo, numero, carrito, totales, user) {
     const payload = {
       tipo_comprobante: tipo,
       numero_documento: numero,
+      cliente_id: user.id || null,
       cliente_nombre: user.nombre || "",
       cliente_apellido_paterno: user.apellido_paterno || "",
       cliente_apellido_materno: user.apellido_materno || "",
@@ -521,6 +607,11 @@ function mostrarModalPago(claveMetodo) {
     document.getElementById("ticket-content").innerHTML = ticketHTML;
     const modalTicket = new bootstrap.Modal(document.getElementById("modal-ticket"));
     modalTicket.show();
+
+    // Configurar botón PDF
+    document.getElementById("btn-descargar-pdf").onclick = () => {
+      descargarComprobantePDF(tipoComprobante, numero, carrito, totales, user);
+    };
 
     // Guardar en backend
     await guardarFactura(tipoComprobante, numero, carrito, totales, user);
