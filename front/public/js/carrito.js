@@ -342,6 +342,8 @@ async function cargarTiposComprobante() {
       opt.textContent = item.valor;
       select.appendChild(opt);
     });
+
+    aplicarReglaComprobante();
   } catch (err) {
     console.error("Error al cargar tipos de comprobante:", err);
   }
@@ -679,7 +681,6 @@ document.addEventListener("DOMContentLoaded", () => {
   manejarPago();
   cargarFormasPago();
   cargarTiposComprobante();
-  aplicarReglaComprobante();
   actualizarContadorCarrito();
 
   // Configurar botón vaciar carrito
