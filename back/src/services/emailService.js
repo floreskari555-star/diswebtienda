@@ -13,8 +13,8 @@ function crearTransporter(port, secure) {
     secure,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     tls: { rejectUnauthorized: false },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000
+    connectionTimeout: 15000,
+    greetingTimeout: 15000
   });
 }
 
@@ -26,43 +26,25 @@ function getTransporter() {
   const pass = process.env.SMTP_PASS;
 
   if (!host || !user || !pass) {
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("⚠️  [EMAIL] SMTP no configurado");
-    console.log("   Faltan: SMTP_HOST, SMTP_USER, SMTP_PASS");
-    console.log("   Los correos NO se enviarán (modo simulado)");
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("⚠️  [EMAIL] SMTP no configurado - Faltan variables de entorno");
     return null;
   }
 
   const port = parseInt(process.env.SMTP_PORT || "465", 10);
   transporter = crearTransporter(port, port === 465);
 
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("✅ [EMAIL] Transporter SMTP configurado");
-  console.log("   Host:", host + ":" + port);
-  console.log("   User:", user);
-  console.log("   CC admin:", CC_ADMIN);
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("✅ [EMAIL] Transporter creado:", host + ":" + port, "| user:", user);
   return transporter;
-}
-
-async function enviarMail(transport, mailOptions) {
-  return transport.sendMail(mailOptions);
 }
 
 async function enviarComprobante({ para, asunto, html }) {
   const transport = getTransporter();
 
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("📧 [EMAIL] Intentando enviar comprobante...");
-  console.log("   Para:", para);
-  console.log("   CC:", CC_ADMIN);
-  console.log("   Asunto:", asunto);
+  console.log("📧 [EMAIL] Iniciando envío a:", para);
 
   if (!transport) {
-    console.log("   ⚠️  Modo simulado - SMTP no configurado");
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    return { enviado: false, motivo: "SMTP no configurado (modo simulado)" };
+    console.log("⚠️  [EMAIL] Sin transporter - modo simulado");
+    return { enviado: false, motivo: "SMTP no configurado" };
   }
 
   const inicio = Date.now();
@@ -74,51 +56,51 @@ async function enviarComprobante({ para, asunto, html }) {
     html
   };
 
+  // Intento 1: puerto configurado
+  const puertoActual = parseInt(process.env.SMTP_PORT || "465", 10);
   try {
-    const info = await enviarMail(transport, mailOptions);
+    console.log("📧 [EMAIL] Intento 1 - puerto " + puertoActual);
+    const info = await transport.sendMail(mailOptions);
     const duracion = Date.now() - inicio;
-
-    console.log("   ✅ CORREO ENVIADO EXITOSAMENTE");
-    console.log("   MessageId:", info.messageId);
-    console.log("   Aceptado:", info.accepted?.join(", "));
-    console.log("   Rechazado:", info.rejected?.join(", ") || "ninguno");
-    console.log("   Duración:", duracion + "ms");
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
+    console.log("✅ [EMAIL] ENVIADO - Id:", info.messageId, "| Duración:", duracion + "ms");
     return { enviado: true, messageId: info.messageId, duracion };
   } catch (err) {
-    console.log("   ❌ ERROR AL ENVIAR CORREO (puerto " + (process.env.SMTP_PORT || "465") + ")");
-    console.log("   Error:", err.message);
-    console.log("   Código:", err.code || "N/A");
+    console.log("❌ [EMAIL] Intento 1 falló:", err.message, "| Código:", err.code || "N/A");
+  }
 
-    // Retry con puerto alternativo
-    const puertoActual = parseInt(process.env.SMTP_PORT || "465", 10);
-    const puertoAlt = puertoActual === 465 ? 587 : 465;
-    const secureAlt = puertoAlt === 465;
-
-    console.log("   🔄 Reintentando con puerto " + puertoAlt + (secureAlt ? " (SSL)" : " (STARTTLS)") + "...");
-    try {
-      const altTransport = crearTransporter(puertoAlt, secureAlt);
-      const info2 = await enviarMail(altTransport, mailOptions);
-      const duracion2 = Date.now() - inicio;
-
-      console.log("   ✅ CORREO ENVIADO (retry puerto " + puertoAlt + ")");
-      console.log("   MessageId:", info2.messageId);
-      console.log("   Duración:", duracion2 + "ms");
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-      return { enviado: true, messageId: info2.messageId, duracion: duracion2 };
-    } catch (err2) {
-      const duracionTotal = Date.now() - inicio;
-      console.log("   ❌ REINTENTO FALLÓ (puerto " + puertoAlt + ")");
-      console.log("   Error:", err2.message);
-      console.log("   Código:", err2.code || "N/A");
-      console.log("   Duración total:", duracionTotal + "ms");
-      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-
-      return { enviado: false, motivo: err.message + " (reintento: " + err2.message + ")", duracion: duracionTotal };
-    }
+  // Intento 2: puerto alternativo
+  const puertoAlt = puertoActual === 465 ? 587 : 465;
+  const secureAlt = puertoAlt === 465;
+  try {
+    console.log("📧 [EMAIL] Intento 2 - puerto " + puertoAlt);
+    const altTransport = crearTransporter(puertoAlt, secureAlt);
+    const info2 = await altTransport.sendMail(mailOptions);
+    const duracion2 = Date.now() - inicio;
+    console.log("✅ [EMAIL] ENVIADO (retry) - Id:", info2.messageId, "| Duración:", duracion2 + "ms");
+    return { enviado: true, messageId: info2.messageId, duracion: duracion2 };
+  } catch (err2) {
+    const duracionTotal = Date.now() - inicio;
+    console.log("❌ [EMAIL] Intento 2 falló:", err2.message, "| Código:", err2.code || "N/A");
+    console.log("❌ [EMAIL] FALLO TOTAL tras " + duracionTotal + "ms");
+    return { enviado: false, motivo: err2.message, duracion: duracionTotal };
   }
 }
 
-module.exports = { enviarComprobante };
+// Verificar conexión SMTP (llamar al inicio para diagnosticar)
+async function verificarConexion() {
+  const transport = getTransporter();
+  if (!transport) {
+    console.log("⚠️  [EMAIL] No hay transporter para verificar");
+    return false;
+  }
+  try {
+    await transport.verify();
+    console.log("✅ [EMAIL] Conexión SMTP verificada OK");
+    return true;
+  } catch (err) {
+    console.log("❌ [EMAIL] Error de conexión SMTP:", err.message, "| Código:", err.code || "N/A");
+    return false;
+  }
+}
+
+module.exports = { enviarComprobante, verificarConexion };
