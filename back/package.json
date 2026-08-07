@@ -31,6 +31,7 @@
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-fileupload": "^1.5.2",
+    "nodemailer": "^9.0.4",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "ubigeo-fns": "^2.2.0"

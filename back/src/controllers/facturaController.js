@@ -1,6 +1,8 @@
 /* | Nombre: facturaController.js | Finalidad: Consulta, creación y anulación de comprobantes. */
 
 const { supabaseAdmin } = require("../config/supabase");
+const { enviarComprobante } = require("../services/emailService");
+const { comprobanteHTML } = require("../services/comprobanteTemplate");
 
 // ── Obtener siguiente correlativo de tablas_maestras ──
 async function siguienteCorrelativo(tipo) {
@@ -101,6 +103,32 @@ const crearFactura = async (req, res) => {
       if (detallesError) {
         console.log("❌ [FACTURAS] Error detalles:", detallesError.message);
       }
+    }
+
+    // ── Enviar comprobante por correo ──────────────────
+    const clienteEmail = req.user?.email || req.body?.cliente_email;
+    if (clienteEmail) {
+      const fecha = `${String(factura.dia).padStart(2, "0")}/${String(factura.mes).padStart(2, "0")}/${factura.anio}`;
+      const html = comprobanteHTML({
+        tipo: tipo_comprobante,
+        numero: numero_documento,
+        fecha,
+        cliente: {
+          nombre: cliente_nombre,
+          apellido_paterno: cliente_apellido_paterno,
+          apellido_materno: cliente_apellido_materno,
+          tipo_documento: "Documento",
+          numero_documento: cliente_numero_doc,
+          direccion: cliente_direccion
+        },
+        items: detalles || [],
+        subtotal, igv, total
+      });
+
+      const asunto = `${tipo_comprobante} N° ${numero_documento} - LibrosLibres Librería`;
+      enviarComprobante({ para: clienteEmail, asunto, html })
+        .then(r => console.log("📧 [EMAIL] Comprobante enviado:", r.enviado ? r.messageId : r.motivo))
+        .catch(err => console.log("📧 [EMAIL] Error:", err.message));
     }
 
     res.status(201).json({ mensaje: "Factura creada", factura });

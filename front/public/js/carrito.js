@@ -523,6 +523,7 @@ async function guardarFactura(tipo, carrito, totales, user) {
     const payload = {
       tipo_comprobante: tipo,
       cliente_id: user.id || null,
+      cliente_email: user.email || "",
       cliente_nombre: user.nombre || "",
       cliente_apellido_paterno: user.apellido_paterno || "",
       cliente_apellido_materno: user.apellido_materno || "",
