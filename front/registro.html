@@ -72,17 +72,19 @@
           <div id="alert-success" class="alert alert-success d-none" role="alert"></div>
 
           <form id="register-form">
-            <!-- Nombre y Apellidos -->
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="reg-nombre" placeholder="Tu nombre" required>
+            </div>
+
+            <!-- Apellidos -->
             <div class="row">
-              <div class="col-md-4 mb-3">
-                <label class="form-label">Nombre *</label>
-                <input type="text" class="form-control" id="reg-nombre" placeholder="Tu nombre" required>
-              </div>
-              <div class="col-md-4 mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Apellido Paterno *</label>
                 <input type="text" class="form-control" id="reg-apellido-paterno" placeholder="Apellido paterno" required>
               </div>
-              <div class="col-md-4 mb-3">
+              <div class="col-md-6 mb-3">
                 <label class="form-label">Apellido Materno</label>
                 <input type="text" class="form-control" id="reg-apellido-materno" placeholder="Apellido materno">
               </div>
