@@ -4,7 +4,11 @@ const CC_ADMIN = "floreskari555@gmail.com";
 
 async function enviarComprobante({ para, asunto, html }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.SMTP_FROM || "LibrosLibres Librería <onboarding@resend.dev>";
+
+  // Resend solo permite enviar desde dominios verificados.
+  // Para pruebas usa onboarding@resend.dev (verificado por defecto).
+  // Para producción: verificar tu dominio en https://resend.com/domains
+  const fromEmail = "LibrosLibres Librería <onboarding@resend.dev>";
 
   console.log("📧 [EMAIL] Iniciando envío a:", para);
 
@@ -55,7 +59,8 @@ async function verificarConexion() {
     console.log("⚠️  [EMAIL] RESEND_API_KEY no configurada");
     return false;
   }
-  console.log("✅ [EMAIL] API Key configurada (verificación pendiente en primer envío)");
+  console.log("✅ [EMAIL] API Key configurada (usando dominio por defecto de Resend)");
+  console.log("   Para dominio personalizado: https://resend.com/domains");
   return true;
 }
 
