@@ -556,14 +556,14 @@ async function guardarFactura(tipo, carrito, totales, user) {
 
     if (!res.ok) {
       console.warn("No se pudo guardar la factura");
-      return null;
+      return { factura: null, email: null };
     }
 
     const data = await res.json();
-    return data.factura;
+    return { factura: data.factura, email: data.email };
   } catch (err) {
     console.warn("Error al guardar factura:", err.message);
-    return null;
+    return { factura: null, email: null };
   }
 }
 
@@ -598,18 +598,26 @@ function mostrarModalPago(claveMetodo) {
     const modalPago = bootstrap.Modal.getInstance(document.getElementById("modal-pago-proceso"));
     modalPago.hide();
 
-    // Guardar en backend (genera el correlativo)
-    const factura = await guardarFactura(tipoComprobante, carrito, totales, user);
+    // Guardar en backend (genera el correlativo + envía correo)
+    const resultado = await guardarFactura(tipoComprobante, carrito, totales, user);
+    const factura = resultado.factura;
+    const email = resultado.email;
     const numero = factura ? factura.numero_documento : "---";
-    const fecha = factura
-      ? `${String(factura.dia).padStart(2, "0")}/${String(factura.mes).padStart(2, "0")}/${factura.anio}`
-      : `${String(new Date().getDate()).padStart(2, "0")}/${String(new Date().getMonth() + 1).padStart(2, "0")}/${new Date().getFullYear()}`;
 
     // Generar y mostrar ticket
     const ticketHTML = generarTicketHTML(tipoComprobante, numero, carrito, totales, user);
     document.getElementById("ticket-content").innerHTML = ticketHTML;
     const modalTicket = new bootstrap.Modal(document.getElementById("modal-ticket"));
     modalTicket.show();
+
+    // Notificar estado del correo
+    if (email) {
+      if (email.enviado) {
+        mostrarToast(`📧 Comprobante enviado a ${user.email}`, "success");
+      } else {
+        mostrarToast(`⚠️ Comprobante NO enviado: ${email.motivo}`, "warning");
+      }
+    }
 
     // Configurar botón PDF
     document.getElementById("btn-descargar-pdf").onclick = () => {
@@ -626,12 +634,13 @@ function mostrarModalPago(claveMetodo) {
 }
 
 // ── Mostrar notificación toast ────────────────────────
-function mostrarToast(mensaje) {
+function mostrarToast(mensaje, tipo = "success") {
   const toastEl = document.getElementById("toast-carrito");
   const messageEl = document.getElementById("toast-message");
 
   if (toastEl && messageEl) {
     messageEl.textContent = mensaje;
+    toastEl.className = `toast align-items-center text-bg-${tipo} border-0`;
     const toast = new bootstrap.Toast(toastEl);
     toast.show();
   }

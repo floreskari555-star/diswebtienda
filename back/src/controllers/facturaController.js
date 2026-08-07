@@ -106,6 +106,7 @@ const crearFactura = async (req, res) => {
     }
 
     // ── Enviar comprobante por correo ──────────────────
+    let emailStatus = null;
     const clienteEmail = req.user?.email || req.body?.cliente_email;
     if (clienteEmail) {
       const fecha = `${String(factura.dia).padStart(2, "0")}/${String(factura.mes).padStart(2, "0")}/${factura.anio}`;
@@ -126,12 +127,14 @@ const crearFactura = async (req, res) => {
       });
 
       const asunto = `${tipo_comprobante} N° ${numero_documento} - LibrosLibres Librería`;
-      enviarComprobante({ para: clienteEmail, asunto, html })
-        .then(r => console.log("📧 [EMAIL] Comprobante enviado:", r.enviado ? r.messageId : r.motivo))
-        .catch(err => console.log("📧 [EMAIL] Error:", err.message));
+      emailStatus = await enviarComprobante({ para: clienteEmail, asunto, html });
     }
 
-    res.status(201).json({ mensaje: "Factura creada", factura });
+    res.status(201).json({
+      mensaje: "Factura creada",
+      factura,
+      email: emailStatus
+    });
   } catch (err) {
     console.log("❌ [FACTURAS] Error inesperado:", err.message);
     return res.status(500).json({ error: err.message });
