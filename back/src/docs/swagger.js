@@ -983,7 +983,7 @@ const options = {
         post: {
           tags: ["Facturas"],
           summary: "Crear factura / boleta",
-          description: "Genera comprobante con correlativo secuencial. Envía correo en background.",
+          description: "Genera comprobante con correlativo secuencial (B001-0000001, F001-0000001). El comprobante se envía por correo de forma asíncrona (no bloquea la respuesta). Requiere variable de entorno RESEND_API_KEY en Render para envío real. Si no está configurado, funciona en modo simulado.",
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
@@ -993,7 +993,7 @@ const options = {
                   type: "object",
                   required: ["tipo_comprobante", "detalles"],
                   properties: {
-                    tipo_comprobante: { type: "string", enum: ["BOLETA", "FACTURA"] },
+                    tipo_comprobante: { type: "string", enum: ["BOLETA", "FACTURA"], description: "BOLETA para DNI, FACTURA para RUC" },
                     cliente_id: { type: "string", format: "uuid" },
                     cliente_nombre: { type: "string" },
                     cliente_apellido_paterno: { type: "string" },
@@ -1026,7 +1026,7 @@ const options = {
             }
           },
           responses: {
-            201: { description: "Factura creada con correlativo" },
+            201: { description: "Factura creada. El correo se envía en background." },
             400: { description: "Datos inválidos" }
           }
         }
@@ -1097,6 +1097,45 @@ const options = {
             200: { description: "Comprobante anulado" },
             400: { description: "Ya está anulado" },
             404: { description: "No encontrada" }
+          }
+        }
+      },
+
+      // ── Reenviar comprobante por correo ───────────────
+      "/api/facturas/{id}/reenviar-correo": {
+        post: {
+          tags: ["Facturas"],
+          summary: "Reenviar comprobante por correo",
+          description: "Reenvía el comprobante de venta por correo electrónico al cliente. Usa la API de Resend (HTTP). Requiere RESEND_API_KEY configurada en Render.",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" }, description: "ID de la factura" }
+          ],
+          responses: {
+            200: {
+              description: "Correo reenviado exitosamente",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      mensaje: { type: "string", example: "Correo reenviado exitosamente" },
+                      email: {
+                        type: "object",
+                        properties: {
+                          enviado: { type: "boolean" },
+                          messageId: { type: "string" },
+                          duracion: { type: "integer", description: "Milisegundos" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: { description: "No hay email destino configurado" },
+            404: { description: "Factura no encontrada" },
+            500: { description: "Error al enviar correo (RESEND_API_KEY no configurada o credenciales inválidas)" }
           }
         }
       },

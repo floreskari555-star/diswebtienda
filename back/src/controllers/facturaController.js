@@ -249,10 +249,67 @@ const obtenerFactura = async (req, res) => {
   }
 };
 
+// ── Reenviar comprobante por correo ───────────────────
+const reenviarCorreo = async (req, res) => {
+  console.log("📧 [FACTURAS] Reenviar correo:", req.params.id);
+
+  try {
+    const { data: factura, error: findError } = await supabaseAdmin
+      .from("facturas")
+      .select("*, facturas_detalles(*)")
+      .eq("id", req.params.id)
+      .single();
+
+    if (findError || !factura) {
+      return res.status(404).json({ error: "Factura no encontrada" });
+    }
+
+    // Determinar email destino
+    const emailDestino = req.user?.email || factura.cliente_email;
+    if (!emailDestino) {
+      return res.status(400).json({ error: "No hay email destino configurado" });
+    }
+
+    const fecha = `${String(factura.dia).padStart(2, "0")}/${String(factura.mes).padStart(2, "0")}/${factura.anio}`;
+    const html = comprobanteHTML({
+      tipo: factura.tipo_comprobante,
+      numero: factura.numero_documento,
+      fecha,
+      cliente: {
+        nombre: factura.cliente_nombre,
+        apellido_paterno: factura.cliente_apellido_paterno,
+        apellido_materno: factura.cliente_apellido_materno,
+        tipo_documento: "Documento",
+        numero_documento: factura.cliente_numero_doc,
+        direccion: factura.cliente_direccion
+      },
+      items: factura.facturas_detalles || [],
+      subtotal: factura.subtotal,
+      igv: factura.igv,
+      total: factura.total
+    });
+
+    const asunto = `${factura.tipo_comprobante} N° ${factura.numero_documento} - LibrosLibres Librería`;
+    const resultado = await enviarComprobante({ para: emailDestino, asunto, html });
+
+    if (resultado.enviado) {
+      console.log("✅ [FACTURAS] Reenviado a:", emailDestino);
+      res.json({ mensaje: "Correo reenviado exitosamente", email: resultado });
+    } else {
+      console.log("❌ [FACTURAS] Reenvío falló:", resultado.motivo);
+      res.status(500).json({ error: "No se pudo enviar el correo: " + resultado.motivo, email: resultado });
+    }
+  } catch (err) {
+    console.log("❌ [FACTURAS] Error reenvío:", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   crearFactura,
   anularFactura,
   historialCliente,
   listarFacturas,
-  obtenerFactura
+  obtenerFactura,
+  reenviarCorreo
 };

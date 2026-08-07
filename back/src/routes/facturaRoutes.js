@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const { crearFactura, anularFactura, historialCliente, listarFacturas, obtenerFactura } = require("../controllers/facturaController");
+const { crearFactura, anularFactura, historialCliente, listarFacturas, obtenerFactura, reenviarCorreo } = require("../controllers/facturaController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 
 // ── Crear factura (cliente autenticado) ───────────────
@@ -19,5 +19,8 @@ router.get("/facturas", authenticate, authorize("admin", "super"), listarFactura
 
 // ── Factura por ID ────────────────────────────────────
 router.get("/facturas/:id", authenticate, obtenerFactura);
+
+// ── Reenviar comprobante por correo ───────────────────
+router.post("/facturas/:id/reenviar-correo", authenticate, reenviarCorreo);
 
 module.exports = router;
