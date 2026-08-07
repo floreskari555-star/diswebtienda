@@ -343,7 +343,7 @@ const actualizarPerfil = async (req, res) => {
     if (direccion !== undefined) updates.direccion = direccion;
     updates.actualizado_al = new Date().toISOString();
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("perfiles")
       .update(updates)
       .eq("id", req.user.id)

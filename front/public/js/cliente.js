@@ -142,8 +142,8 @@ async function cargarDepartamentos() {
     const select = document.getElementById("perfil-departamento");
     (json.departamentos || []).forEach(dep => {
       const opt = document.createElement("option");
-      opt.value = dep.codigo;
-      opt.textContent = dep.nombre;
+      opt.value = dep.code;
+      opt.textContent = dep.name;
       select.appendChild(opt);
     });
   } catch (err) {
@@ -168,8 +168,8 @@ async function cargarProvincias(departamentoCodigo) {
     const json = await data.json();
     (json.provincias || []).forEach(prov => {
       const opt = document.createElement("option");
-      opt.value = prov.codigo;
-      opt.textContent = prov.nombre;
+      opt.value = prov.code;
+      opt.textContent = prov.name;
       select.appendChild(opt);
     });
     select.disabled = false;
@@ -193,8 +193,8 @@ async function cargarDistritos(provinciaCodigo) {
     const json = await data.json();
     (json.distritos || []).forEach(dist => {
       const opt = document.createElement("option");
-      opt.value = dist.codigo;
-      opt.textContent = dist.nombre;
+      opt.value = dist.code;
+      opt.textContent = dist.name;
       select.appendChild(opt);
     });
     select.disabled = false;

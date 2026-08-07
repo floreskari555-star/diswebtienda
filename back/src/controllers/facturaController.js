@@ -81,7 +81,86 @@ const obtenerFactura = async (req, res) => {
   }
 };
 
+// ── Crear factura con detalles ────────────────────────
+const crearFactura = async (req, res) => {
+  console.log("🧾 [FACTURAS] Crear nueva factura");
+
+  const {
+    tipo_comprobante, numero_documento,
+    cliente_id, cliente_nombre, cliente_apellido_paterno, cliente_apellido_materno,
+    cliente_numero_doc, cliente_direccion,
+    subtotal, igv, total,
+    estado, dia, mes, anio,
+    detalles
+  } = req.body;
+
+  if (!tipo_comprobante || !numero_documento) {
+    return res.status(400).json({ error: "tipo_comprobante y numero_documento son requeridos" });
+  }
+
+  try {
+    const { data: factura, error: facturaError } = await supabaseAdmin
+      .from("facturas")
+      .insert({
+        tipo_comprobante,
+        numero_documento,
+        cliente_id: cliente_id || null,
+        cliente_nombre: cliente_nombre || "",
+        cliente_apellido_paterno: cliente_apellido_paterno || "",
+        cliente_apellido_materno: cliente_apellido_materno || "",
+        cliente_numero_doc: cliente_numero_doc || "",
+        cliente_direccion: cliente_direccion || "",
+        subtotal: subtotal || 0,
+        igv: igv || 0,
+        total: total || 0,
+        estado: estado || "Valido",
+        dia: dia || null,
+        mes: mes || null,
+        anio: anio || null
+      })
+      .select()
+      .single();
+
+    if (facturaError) {
+      console.log("❌ [FACTURAS] Error al crear factura:", facturaError.message);
+      return res.status(400).json({ error: facturaError.message });
+    }
+
+    console.log("✅ [FACTURAS] Factura creada:", factura.numero_documento);
+
+    // Insertar detalles
+    if (detalles && detalles.length > 0) {
+      const detallesInsert = detalles.map(d => ({
+        factura_id: factura.id,
+        numero_item: d.numero_item || 1,
+        codigo: d.codigo || "",
+        descripcion: d.descripcion || "",
+        precio_unitario: d.precio_unitario || 0,
+        cantidad: d.cantidad || 1,
+        total_item: d.total_item || 0
+      }));
+
+      const { error: detallesError } = await supabaseAdmin
+        .from("facturas_detalles")
+        .insert(detallesInsert);
+
+      if (detallesError) {
+        console.log("❌ [FACTURAS] Error al crear detalles:", detallesError.message);
+      }
+    }
+
+    res.status(201).json({
+      mensaje: "Factura creada exitosamente",
+      factura
+    });
+  } catch (err) {
+    console.log("❌ [FACTURAS] Error inesperado:", err.message);
+    return res.status(500).json({ error: "Error al crear factura" });
+  }
+};
+
 module.exports = {
+  crearFactura,
   historialCliente,
   listarFacturas,
   obtenerFactura
