@@ -433,6 +433,10 @@ function generarTicketHTML(tipo, numero, carrito, totales, user) {
 
 // ── Descargar comprobante como PDF ────────────────────
 function descargarComprobantePDF(tipo, numero, carritoItems, totales, user) {
+  if (!window.jspdf) {
+    mostrarToast("Librería PDF no cargada. Recargue la página.", "danger");
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: "mm", format: [80, 200] });
 

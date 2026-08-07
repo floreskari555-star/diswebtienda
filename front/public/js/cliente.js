@@ -442,6 +442,11 @@ async function verFactura(facturaId) {
 // ── Descargar factura como PDF ────────────────────────
 async function descargarFacturaPDF(facturaId) {
   try {
+    if (!window.jspdf) {
+      mostrarToast("Librería PDF no cargada. Recargue la página.", "danger");
+      return;
+    }
+
     const data = await api(`/api/facturas/${facturaId}`);
     const f = data.factura;
 
