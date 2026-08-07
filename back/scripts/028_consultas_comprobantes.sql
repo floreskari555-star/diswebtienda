@@ -1,148 +1,173 @@
 -- ============================================
--- SCRIPT 028: Consultas concatenadas de comprobantes
--- Ver datos de la PRIMERA boleta/factura registrada
+-- SCRIPT 028: Datos completos de pablo marmol
+-- Todas las tablas de su comprobante más reciente
 -- ============================================
 
 -- ============================================
--- 1. VISTA GENERAL DEL COMPROBANTE
+-- 1. TODAS LAS TABLAS EN UNA SOLA CONSULTA
 -- ============================================
--- Muestra: tipo, número, fecha, datos del cliente, totales y estado
+-- Tomar el ID de la factura más reciente de pmarmol
+-- y mostrar todo concatenado
+
+WITH cliente_info AS (
+  SELECT id, nombre, apellido_paterno, apellido_materno,
+         correo, tipo_documento, numero_documento,
+         departamento, provincia, distrito, telefono, direccion
+  FROM public.perfiles
+  WHERE correo = 'pmarmol@correo.com'
+),
+ultima_factura AS (
+  SELECT f.*
+  FROM public.facturas f
+  JOIN cliente_info c ON c.id = f.cliente_id
+  WHERE f.tipo_comprobante = 'BOLETA'
+  ORDER BY f.creado_el DESC
+  LIMIT 1
+)
 SELECT
-  f.tipo_comprobante || ' N° ' || f.numero_documento AS "Comprobante",
-  CASE
-    WHEN f.tipo_comprobante = 'BOLETA' THEN 'Boleta de Venta'
-    WHEN f.tipo_comprobante = 'FACTURA' THEN 'Factura Electrónica'
-    ELSE f.tipo_comprobante
-  END AS "Tipo Documento",
-  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "Fecha Emisión",
-  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "Cliente",
-  f.cliente_numero_doc AS "N° Documento",
-  f.cliente_direccion AS "Dirección",
-  'S/ ' || ROUND(f.subtotal, 2)::TEXT AS "Subtotal",
-  'S/ ' || ROUND(f.igv, 2)::TEXT AS "IGV (18%)",
-  'S/ ' || ROUND(f.total, 2)::TEXT AS "TOTAL",
-  f.estado AS "Estado",
-  TO_CHAR(f.creado_el, 'DD/MM/YYYY HH24:MI:SS') AS "Registrado el"
-FROM public.facturas f
-ORDER BY f.creado_el ASC
-LIMIT 1;
+  -- ═══ TABLA: perfiles ═══
+  '═══ TABLA: perfiles ═══' AS "── perfiles ──",
+  c.nombre AS "nombre",
+  c.apellido_paterno AS "apellido_paterno",
+  c.apellido_materno AS "apellido_materno",
+  c.correo AS "correo",
+  c.tipo_documento AS "tipo_documento",
+  c.numero_documento AS "numero_documento",
+  c.departamento AS "departamento",
+  c.provincia AS "provincia",
+  c.distrito AS "distrito",
+  c.telefono AS "telefono",
+  c.direccion AS "direccion",
+
+  -- ═══ TABLA: facturas ═══
+  '═══ TABLA: facturas ═══' AS "── facturas ──",
+  f.tipo_comprobante AS "tipo_comprobante",
+  f.numero_documento AS "numero_documento_comprobante",
+  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "fecha_emision",
+  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "cliente_concat",
+  f.cliente_numero_doc AS "cliente_doc",
+  f.cliente_direccion AS "cliente_direccion",
+  'S/ ' || ROUND(f.subtotal, 2)::TEXT AS "subtotal",
+  'S/ ' || ROUND(f.igv, 2)::TEXT AS "igv",
+  'S/ ' || ROUND(f.total, 2)::TEXT AS "total",
+  f.estado AS "estado",
+  TO_CHAR(f.creado_el, 'DD/MM/YYYY HH24:MI:SS') AS "creado_el"
+
+FROM cliente_info c
+CROSS JOIN ultima_factura f;
 
 -- ============================================
--- 2. DETALLE DE ITEMS DE LA PRIMERA FACTURA
+-- 2. DETALLE DE ITEMS (facturas_detalles)
 -- ============================================
--- Muestra: número de ítem, descripción, cantidad, precio unitario y total
+WITH cliente_info AS (
+  SELECT id FROM public.perfiles WHERE correo = 'pmarmol@correo.com'
+),
+ultima_factura AS (
+  SELECT f.id
+  FROM public.facturas f
+  JOIN cliente_info c ON c.id = f.cliente_id
+  WHERE f.tipo_comprobante = 'BOLETA'
+  ORDER BY f.creado_el DESC
+  LIMIT 1
+)
 SELECT
-  fd.numero_item AS "Item",
-  fd.descripcion AS "Descripción del Libro",
-  fd.codigo AS "Cód. Libro",
-  fd.cantidad AS "Cant.",
-  'S/ ' || ROUND(fd.precio_unitario, 2)::TEXT AS "P. Unitario",
-  'S/ ' || ROUND(fd.total_item, 2)::TEXT AS "Total Item"
+  fd.numero_item AS "item",
+  fd.codigo AS "codigo_libro",
+  fd.descripcion AS "descripcion",
+  fd.cantidad AS "cantidad",
+  'S/ ' || ROUND(fd.precio_unitario, 2)::TEXT AS "precio_unitario",
+  'S/ ' || ROUND(fd.total_item, 2)::TEXT AS "total_item"
 FROM public.facturas_detalles fd
-JOIN public.facturas f ON f.id = fd.factura_id
-ORDER BY f.creado_el ASC, fd.numero_item ASC
-LIMIT 10;
+JOIN ultima_factura uf ON uf.id = fd.factura_id
+ORDER BY fd.numero_item;
 
 -- ============================================
--- 3. COMPROBANTE COMPLETO CONCATENADO (una sola fila)
+-- 3. TODO CONCATENADO EN UNA SOLA FILA
 -- ============================================
--- Todo en una sola fila legible
+WITH cliente_info AS (
+  SELECT * FROM public.perfiles WHERE correo = 'pmarmol@correo.com'
+),
+ultima_factura AS (
+  SELECT f.*
+  FROM public.facturas f
+  JOIN cliente_info c ON c.id = f.cliente_id
+  WHERE f.tipo_comprobante = 'BOLETA'
+  ORDER BY f.creado_el DESC
+  LIMIT 1
+)
 SELECT
-  '═══════════════════════════════════════' AS "━━ CABECERA ━━",
-  f.tipo_comprobante || ' N° ' || f.numero_documento AS "Comprobante",
-  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "Fecha",
-  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "Cliente",
-  f.cliente_numero_doc AS "Doc",
-  f.cliente_direccion AS "Dirección",
-  'S/ ' || ROUND(f.subtotal, 2)::TEXT AS "Subtotal",
-  'S/ ' || ROUND(f.igv, 2)::TEXT AS "IGV",
-  'S/ ' || ROUND(f.total, 2)::TEXT AS "TOTAL",
-  f.estado AS "Estado",
-  '───────────────────────────────────────' AS "━━ DETALLE ━━",
-  STRING_AGG(
+  -- Perfil
+  'PERFIL: ' || c.nombre || ' ' || c.apellido_paterno || ' ' || COALESCE(c.apellido_materno, '') ||
+  ' | Email: ' || c.correo ||
+  ' | ' || c.tipo_documento || ': ' || c.numero_documento ||
+  ' | Tel: ' || COALESCE(c.telefono, '-') ||
+  ' | Dir: ' || COALESCE(c.direccion, '-') ||
+  ' | ' || COALESCE(c.departamento, '') || ' / ' || COALESCE(c.provincia, '') || ' / ' || COALESCE(c.distrito, '')
+  AS "DATOS CLIENTE",
+
+  -- Comprobante
+  'COMPROBANTE: ' || f.tipo_comprobante || ' N° ' || f.numero_documento ||
+  ' | Fecha: ' || LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio ||
+  ' | Subtotal: S/ ' || ROUND(f.subtotal, 2)::TEXT ||
+  ' | IGV: S/ ' || ROUND(f.igv, 2)::TEXT ||
+  ' | TOTAL: S/ ' || ROUND(f.total, 2)::TEXT ||
+  ' | Estado: ' || f.estado
+  AS "DATOS FACTURA",
+
+  -- Items
+  (SELECT STRING_AGG(
     fd.numero_item || '. ' || fd.descripcion || ' x' || fd.cantidad || ' = S/ ' || ROUND(fd.total_item, 2)::TEXT,
-    ' | '
-    ORDER BY fd.numero_item
-  ) AS "Items"
-FROM public.facturas f
-JOIN public.facturas_detalles fd ON fd.factura_id = f.id
-GROUP BY f.id, f.tipo_comprobante, f.numero_documento,
-         f.dia, f.mes, f.anio,
-         f.cliente_nombre, f.cliente_apellido_paterno, f.cliente_apellido_materno,
-         f.cliente_numero_doc, f.cliente_direccion,
-         f.subtotal, f.igv, f.total, f.estado, f.creado_el
-ORDER BY f.creado_el ASC
-LIMIT 1;
+    ' | ' ORDER BY fd.numero_item
+  )
+  FROM public.facturas_detalles fd
+  WHERE fd.factura_id = f.id
+  ) AS "ITEMS"
+
+FROM cliente_info c
+CROSS JOIN ultima_factura f;
 
 -- ============================================
--- 4. PRIMERA BOLETA (solo boletas)
+-- 4. BOLETA FORMATEADA (vista tipo ticket)
 -- ============================================
+WITH cliente_info AS (
+  SELECT * FROM public.perfiles WHERE correo = 'pmarmol@correo.com'
+),
+ultima_factura AS (
+  SELECT f.*
+  FROM public.facturas f
+  JOIN cliente_info c ON c.id = f.cliente_id
+  WHERE f.tipo_comprobante = 'BOLETA'
+  ORDER BY f.creado_el DESC
+  LIMIT 1
+)
 SELECT
-  f.numero_documento AS "Boleta N°",
-  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "Fecha",
-  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "Cliente",
-  f.cliente_numero_doc AS "DNI",
-  'S/ ' || ROUND(f.total, 2)::TEXT AS "Total",
-  f.estado AS "Estado",
-  STRING_AGG(
-    fd.descripcion || ' (x' || fd.cantidad || ')',
-    ', ' ORDER BY fd.numero_item
-  ) AS "Libros Comprados"
-FROM public.facturas f
-JOIN public.facturas_detalles fd ON fd.factura_id = f.id
-WHERE f.tipo_comprobante = 'BOLETA'
-GROUP BY f.id
-ORDER BY f.creado_el ASC
-LIMIT 1;
+  '═══════════════════════════════════' AS "",
+  '     LIBROSLIBRES LIBRERIA' AS "",
+  '     RUC: 20512345678' AS "",
+  '     Av. Principal 123, Lima' AS "",
+  '───────────────────────────────────' AS "",
+  'BOLETA N° ' || f.numero_documento AS "",
+  'Fecha: ' || LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "",
+  '───────────────────────────────────' AS "",
+  'Cliente: ' || f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "",
+  'DNI: ' || COALESCE(f.cliente_numero_doc, '---') AS "",
+  'Dirección: ' || COALESCE(f.cliente_direccion, '---') AS "",
+  '───────────────────────────────────' AS "",
+  'DETALLE:' AS "",
 
--- ============================================
--- 5. PRIMERA FACTURA (solo facturas)
--- ============================================
-SELECT
-  f.numero_documento AS "Factura N°",
-  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "Fecha",
-  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') || ' ' || COALESCE(f.cliente_apellido_materno, '') AS "Razón Social",
-  f.cliente_numero_doc AS "RUC",
-  f.cliente_direccion AS "Dirección",
-  'S/ ' || ROUND(f.subtotal, 2)::TEXT AS "Subtotal",
-  'S/ ' || ROUND(f.igv, 2)::TEXT AS "IGV",
-  'S/ ' || ROUND(f.total, 2)::TEXT AS "Total",
-  f.estado AS "Estado",
-  STRING_AGG(
-    fd.descripcion || ' | S/ ' || ROUND(fd.total_item, 2)::TEXT,
-    ' → ' ORDER BY fd.numero_item
-  ) AS "Detalle"
-FROM public.facturas f
-JOIN public.facturas_detalles fd ON fd.factura_id = f.id
-WHERE f.tipo_comprobante = 'FACTURA'
-GROUP BY f.id
-ORDER BY f.creado_el ASC
-LIMIT 1;
+  (SELECT STRING_AGG(
+    fd.numero_item || '. ' || fd.descripcion || '  S/ ' || ROUND(fd.total_item, 2)::TEXT,
+    E'\n' ORDER BY fd.numero_item
+  )
+  FROM public.facturas_detalles fd
+  WHERE fd.factura_id = f.id
+  ) AS "",
 
--- ============================================
--- 6. HISTORIAL COMPLETO DE UN CLIENTE POR EMAIL
--- ============================================
--- Cambiar 'correo@ejemplo.com' por el email real
-SELECT
-  f.tipo_comprobante || ' N° ' || f.numero_documento AS "Comprobante",
-  LPAD(f.dia::TEXT, 2, '0') || '/' || LPAD(f.mes::TEXT, 2, '0') || '/' || f.anio AS "Fecha",
-  f.cliente_nombre || ' ' || COALESCE(f.cliente_apellido_paterno, '') AS "Cliente",
-  'S/ ' || ROUND(f.total, 2)::TEXT AS "Total",
-  f.estado AS "Estado",
-  (SELECT COUNT(*) FROM public.facturas_detalles WHERE factura_id = f.id)::TEXT || ' ítems' AS "Items"
-FROM public.facturas f
-WHERE f.cliente_nombre ILIKE '%' || (SELECT nombre FROM public.perfiles WHERE correo = 'correo@ejemplo.com' LIMIT 1) || '%'
-ORDER BY f.creado_el DESC;
+  '───────────────────────────────────' AS "",
+  'Subtotal:  S/ ' || ROUND(f.subtotal, 2)::TEXT AS "",
+  'IGV (18%): S/ ' || ROUND(f.igv, 2)::TEXT AS "",
+  'TOTAL:     S/ ' || ROUND(f.total, 2)::TEXT AS "",
+  '═══════════════════════════════════' AS ""
 
--- ============================================
--- 7. RESUMEN: TOTAL BOLETAS Y FACTURAS
--- ============================================
-SELECT
-  tipo_comprobante AS "Tipo",
-  COUNT(*)::TEXT AS "Cantidad",
-  'S/ ' || ROUND(COALESCE(SUM(total), 0), 2)::TEXT AS "Monto Total",
-  COUNT(CASE WHEN estado = 'Valido' THEN 1 END)::TEXT AS "Válidas",
-  COUNT(CASE WHEN estado = 'Anulado' THEN 1 END)::TEXT AS "Anuladas"
-FROM public.facturas
-GROUP BY tipo_comprobante
-ORDER BY tipo_comprobante;
+FROM cliente_info c
+CROSS JOIN ultima_factura f;
