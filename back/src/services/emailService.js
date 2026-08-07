@@ -1,20 +1,21 @@
 /* | Nombre: emailService.js | Finalidad: Envío de correos electrónicos vía API HTTP (Resend). */
 
-const CC_ADMIN = "floreskari555@gmail.com";
+// En modo prueba, Resend solo permite enviar a la dirección de la cuenta.
+// Para enviar a otros destinatarios: verificar dominio en https://resend.com/domains
+const EMAIL_PERMITIDO = "floreskari555@gmail.com";
 
 async function enviarComprobante({ para, asunto, html }) {
   const apiKey = process.env.RESEND_API_KEY;
 
-  // Resend solo permite enviar desde dominios verificados.
-  // Para pruebas usa onboarding@resend.dev (verificado por defecto).
-  // Para producción: verificar tu dominio en https://resend.com/domains
-  const fromEmail = "LibrosLibres Librería <onboarding@resend.dev>";
+  // Resend test mode: solo envía a la dirección de la cuenta
+  const destinoReal = EMAIL_PERMITIDO;
 
-  console.log("📧 [EMAIL] Iniciando envío a:", para);
+  console.log("📧 [EMAIL] Iniciando envío...");
+  console.log("   Cliente:", para);
+  console.log("   Enviando a:", destinoReal, "(modo prueba Resend)");
 
   if (!apiKey) {
     console.log("⚠️  [EMAIL] RESEND_API_KEY no configurado - modo simulado");
-    console.log("   Configure RESEND_API_KEY en las variables de entorno de Render");
     return { enviado: false, motivo: "RESEND_API_KEY no configurado (modo simulado)" };
   }
 
@@ -28,9 +29,8 @@ async function enviarComprobante({ para, asunto, html }) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: fromEmail,
-        to: [para],
-        cc: [CC_ADMIN],
+        from: "LibrosLibres Librería <onboarding@resend.dev>",
+        to: [destinoReal],
         subject: asunto,
         html
       })
@@ -59,8 +59,7 @@ async function verificarConexion() {
     console.log("⚠️  [EMAIL] RESEND_API_KEY no configurada");
     return false;
   }
-  console.log("✅ [EMAIL] API Key configurada (usando dominio por defecto de Resend)");
-  console.log("   Para dominio personalizado: https://resend.com/domains");
+  console.log("✅ [EMAIL] API Key configurada (modo prueba: solo envía a " + EMAIL_PERMITIDO + ")");
   return true;
 }
 
