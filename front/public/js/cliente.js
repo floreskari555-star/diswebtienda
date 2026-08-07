@@ -8,7 +8,7 @@ let token = null;
 let facturaActual = null;
 
 // ── Inicialización ────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const userData = sessionStorage.getItem("user");
   if (!userData) {
     window.location.href = "login.html";
@@ -17,6 +17,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   usuario = JSON.parse(userData);
   token = usuario.token;
+
+  // Validar token contra el backend
+  if (token && CONFIG?.BACKEND_URL) {
+    try {
+      const res = await fetch(`${CONFIG.BACKEND_URL}/api/auth/perfil`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("pendingPurchase");
+        mostrarToast("Sesión expirada. Inicie sesión nuevamente.", "danger");
+        setTimeout(() => { window.location.href = "login.html"; }, 1500);
+        return;
+      }
+    } catch {
+      // Backend dormido o sin red, continuar normalmente
+    }
+  }
 
   if (usuario.rol !== "cliente" && !["super", "admin"].includes(usuario.rol)) {
     alert("No tienes permisos de cliente");

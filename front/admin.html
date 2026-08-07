@@ -452,11 +452,30 @@
     let usuario = null;
     let token = null;
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const userData = sessionStorage.getItem("user");
       if (!userData) { window.location.href = "login.html"; return; }
       usuario = JSON.parse(userData);
       token = usuario.token;
+
+      // Validar token contra el backend
+      if (token && typeof CONFIG !== "undefined" && CONFIG?.BACKEND_URL) {
+        try {
+          const res = await fetch(`${CONFIG.BACKEND_URL}/api/auth/perfil`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (res.status === 401) {
+            sessionStorage.removeItem("user");
+            sessionStorage.removeItem("pendingPurchase");
+            alert("Sesión expirada. Inicie sesión nuevamente.");
+            window.location.href = "login.html";
+            return;
+          }
+        } catch {
+          // Backend dormido o sin red, continuar normalmente
+        }
+      }
+
       if (!["super", "admin"].includes(usuario.rol)) { alert("Sin permisos"); window.location.href = "index.html"; return; }
       document.getElementById("user-info").innerHTML = `<strong>${usuario.nombre} ${usuario.apellido_paterno || usuario.apellido || ""}</strong><br><span class="badge bg-warning text-dark">${usuario.rol}</span>`;
       cargarDashboard();

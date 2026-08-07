@@ -555,7 +555,11 @@ async function guardarFactura(tipo, carrito, totales, user) {
     });
 
     if (!res.ok) {
-      console.warn("No se pudo guardar la factura");
+      if (res.status === 401) {
+        console.warn("Sesión expirada o token inválido");
+        return { factura: null, email: null, authError: true };
+      }
+      console.warn("No se pudo guardar la factura, status:", res.status);
       return { factura: null, email: null };
     }
 
@@ -600,6 +604,15 @@ function mostrarModalPago(claveMetodo) {
 
     // Guardar en backend (genera el correlativo + envía correo)
     const resultado = await guardarFactura(tipoComprobante, carrito, totales, user);
+
+    // Sesión expirada o token inválido
+    if (resultado.authError) {
+      mostrarToast("Sesión expirada. Inicie sesión nuevamente.", "danger");
+      sessionStorage.removeItem("user");
+      setTimeout(() => { window.location.href = "login.html"; }, 1500);
+      return;
+    }
+
     const factura = resultado.factura;
     const email = resultado.email;
     const numero = factura ? factura.numero_documento : "---";
@@ -613,10 +626,12 @@ function mostrarModalPago(claveMetodo) {
     // Notificar estado del correo
     if (email) {
       if (email.enviado) {
-        mostrarToast(`📧 Comprobante enviado a ${user.email}`, "success");
+        mostrarToast(`Comprobante enviado a ${user.email}`, "success");
       } else {
-        mostrarToast(`⚠️ Comprobante NO enviado: ${email.motivo}`, "warning");
+        mostrarToast(`Comprobante NO enviado: ${email.motivo}`, "warning");
       }
+    } else {
+      mostrarToast("No se pudo generar la factura. Intente nuevamente.", "danger");
     }
 
     // Configurar botón PDF
@@ -683,12 +698,31 @@ function manejarPago() {
 }
 
 // ── Inicializar en página de carrito ──────────────────
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   renderizarCarrito();
   manejarPago();
   cargarFormasPago();
   cargarTiposComprobante();
   actualizarContadorCarrito();
+
+  // Verificar sesión y token válido
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  if (user && user.token && CONFIG?.BACKEND_URL) {
+    try {
+      const res = await fetch(`${CONFIG.BACKEND_URL}/api/auth/perfil`, {
+        headers: { "Authorization": `Bearer ${user.token}` }
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("pendingPurchase");
+        mostrarToast("Sesión expirada. Inicie sesión nuevamente.", "danger");
+        setTimeout(() => { window.location.href = "login.html"; }, 1500);
+        return;
+      }
+    } catch {
+      // Backend dormido o sin red, continuar normalmente
+    }
+  }
 
   // Configurar botón vaciar carrito
   const btnVaciar = document.getElementById("btn-vaciar-carrito");
@@ -701,7 +735,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Verificar sesión en navbar
-  const user = JSON.parse(sessionStorage.getItem("user"));
   const btnLogin = document.getElementById("btn-login");
   const userMenu = document.getElementById("user-menu");
   const userName = document.getElementById("user-name");

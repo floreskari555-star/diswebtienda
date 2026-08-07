@@ -290,6 +290,24 @@
       usuario = JSON.parse(userData);
       token = usuario.token;
 
+      // Validar token contra el backend
+      if (token && typeof CONFIG !== "undefined" && CONFIG?.BACKEND_URL) {
+        try {
+          const res = await fetch(`${CONFIG.BACKEND_URL}/api/auth/perfil`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          if (res.status === 401) {
+            sessionStorage.removeItem("user");
+            sessionStorage.removeItem("pendingPurchase");
+            alert("Sesión expirada. Inicie sesión nuevamente.");
+            window.location.href = "login.html";
+            return;
+          }
+        } catch {
+          // Backend dormido o sin red, continuar normalmente
+        }
+      }
+
       if (!["proveedor", "super", "admin"].includes(usuario.rol)) {
         alert("No tienes permisos de proveedor");
         window.location.href = "index.html";

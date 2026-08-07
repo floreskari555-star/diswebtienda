@@ -8,7 +8,7 @@
 
 // ── Verificar si hay sesión activa al cargar ──────────
 document.addEventListener("DOMContentLoaded", () => {
-  verificarSesionActiva();
+  verificarSesionCompleta();
   configurarFormularioLogin();
   configurarTogglePassword();
 });
@@ -142,9 +142,52 @@ function logout() {
   window.location.href = "login.html";
 }
 
+// ── Validar si el token sigue siendo válido ───────────
+async function validarToken() {
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  if (!user || !user.token) return false;
+
+  try {
+    const res = await fetch(`${CONFIG.BACKEND_URL}/api/health`, {
+      headers: { "Authorization": `Bearer ${user.token}` }
+    });
+    // Cualquier respuesta (incluso 401) confirma que el backend está vivo.
+    // Si el health no valida token, al menos sabemos que hay red.
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── Verificar sesión activa y token válido al cargar ──
+async function verificarSesionCompleta() {
+  const user = JSON.parse(sessionStorage.getItem("user"));
+  if (!user) return;
+
+  // Si tiene token, intentar una petición ligera al backend
+  if (user.token && CONFIG?.BACKEND_URL) {
+    try {
+      const res = await fetch(`${CONFIG.BACKEND_URL}/api/auth/perfil`, {
+        headers: { "Authorization": `Bearer ${user.token}` }
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("pendingPurchase");
+        window.location.href = "login.html";
+        return;
+      }
+    } catch {
+      // Si el backend no responde, no limpiamos (puede estar dormido)
+    }
+  }
+
+  redirigirSegunRol(user.rol);
+}
+
 // ── Exportar para uso global ──────────────────────────
 window.auth = {
   verificarSesionActiva,
+  verificarSesionCompleta,
   logout,
   obtenerUsuario: () => JSON.parse(sessionStorage.getItem("user"))
 };
